@@ -66,7 +66,7 @@ void MyClass::Loop()
 
   if (fChain == 0) return;
      bool verbose(false);
-     bool signal(false);
+     bool signal(true);
 
 
   const char* fname="histos.root";
@@ -174,12 +174,12 @@ void MyClass::Loop()
   
   //create a histogram for the scalar and vector  sum of the pT of the q/g's (hadronic system)
 
-  TH1F *h_HT_G = new TH1F("h_HT_G", " ; HT [GeV] ; Events", 100, 0. ,600.);
+  TH1F *h_HT_G = new TH1F("h_HT_G", " ; H_{T} [GeV] ; Events", 100, 0. ,600.);
   TH1F *h_ptb_v_sum = new TH1F("h_ptb_v_sum"," ; p_{T} bbb(b) [GeV] ; Events", 100, 0., 600.);
 
   //leptonic
   
-  TH1F *h_pt_Lep = new TH1F("h_pt_Lep", " ; p_{T} (2l) [GeV] ; Events", 100., 0., 600.);
+  TH1F *h_pt_Z = new TH1F("h_pt_Z", " ; p_{T} (2l) [GeV] ; Events", 100., 0., 600.);
   
   //create a histogram for the absolute delta Phi phi.Had-phi.Lep
 
@@ -268,7 +268,7 @@ void MyClass::Loop()
   TH1F *h_dPhi_ZH    = new TH1F("h_dPhi_ZH"    , " ; |#Delta#phi|(H,Z); Events", 100, 0., TMath::Pi());
   
   //scalar sum of pT of jets
-  TH1F *h_HT = new TH1F("h_HT" , " ; HT [GeV]; Events", 100, 0., 600.);
+  TH1F *h_HT = new TH1F("h_HT" , " ; H_{T} [GeV]; Events", 100, 0., 600.);
   
   //jet kinematics - 4 most energetic jets
   TH1F *h_pt_jet1 = new TH1F("h_pt_jet1", " ;  b_{1}, p_{T} [GeV] ; Events", 100, 0., 400.);
@@ -339,6 +339,7 @@ void MyClass::Loop()
   float dR_ll;
   float dPhi_ZH;
   int n_jets_after_cuts;
+  float weight(1.);
   
   t1.Branch("m_H", &m_H, "m_H/F");
   t1.Branch("pt_H", &pt_H, "pt_H/F");
@@ -352,11 +353,43 @@ void MyClass::Loop()
   t1.Branch("dR_ll", &dR_ll, "dR_ll/F");
   t1.Branch("dPhi_ZH", &dPhi_ZH, "dPhi_ZH/F");
   t1.Branch("n_jets_after_cuts", &n_jets_after_cuts, "n_jets_after_cuts/I");
+  t1.Branch("weight", &weight, "weight/F");
   
   Long64_t nentries = fChain->GetEntriesFast();
 
   cout << "Total number of events = " << nentries << endl;
+  
+  //N_expected
 
+  float sigma_signal = 0.8839*(3*0.0336)*0.75; //in picobarns (pb)
+  float sigma_DY  = 51.4; //in picobarns (pb)
+  float L_int     = 43.5E3;
+
+  float N_expected_signal = sigma_signal*L_int;
+  float N_expected_DY  = sigma_DY*L_int;
+
+  float N_expected(0.);
+
+  if(signal){
+    
+    cout << "Number of expected events in signal:" << N_expected_signal << endl;
+    weight = N_expected_signal/totalNumberofEvents;
+    cout << "Signal (M20) Weight: " << weight << endl;
+    N_expected = N_expected_signal;
+  }
+  
+  else{
+    
+    cout << "Number of expected events in DY background:" << N_expected_DY << endl;
+    weight = N_expected_DY/totalNumberofEvents;
+    cout << "Drell Yan Weight: " << weight << endl;
+    N_expected = N_expected_DY;
+  }
+
+  int count_step1(0);
+  int count_step2(0);
+  int count_step3(0);
+ 
   Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
@@ -667,8 +700,8 @@ void MyClass::Loop()
     float m_H_G  = pHad.M(); h_m_H_G->Fill(m_H_G);
     float m_Z_G  = pLep.M(); h_m_Z_G->Fill(m_Z_G);
     
-    float pt_Lep = pLep.Pt();
-    h_pt_Lep->Fill(pt_Lep);
+    float pt_Z_G = pLep.Pt();
+    h_pt_Z_G->Fill(pt_Z_G);
     
     // if(pb.size()>=4){
     // //calculating the minimum and maximum difference between 2 b quark pair masses
@@ -924,15 +957,17 @@ void MyClass::Loop()
 
     
     //selection criteria
-
     if(vec_leptons.size()<2) continue; //at least 2 leptons
-
+    count_step1++;
+    
     h_n_jets->Fill(vec_jet.size());
     h_n_bjets->Fill(vec_bjet.size());
     
-    if(vec_jet.size()<3) continue; //at least 4 jets
+    if(vec_jet.size()<3) continue; //at least 3 jets
+    count_step2++;
     if(vec_bjet.size()<3) continue; //at least 3 b jets
-
+    count_step3++;
+    
     n_jets_after_cuts = vec_jet.size();
     
     h_n_jets_after_cuts->Fill(n_jets_after_cuts);
@@ -1168,6 +1203,26 @@ void MyClass::Loop()
     
    }//end event loop
 
+   cout << "TOTAL: " << totalNumberofEvents <<endl;
+   cout << "" << endl;
+   cout << "step1: " << count_step1 << endl;
+   cout << "" << endl;
+   cout << "step2: " << count_step2 << endl;
+   cout << "" << endl;
+   cout << "step3: " << count_step3 << endl;
+   cout << "" << endl;
+   
+   cout << "eff0 = " << float(totalNumberofEvents)/float(totalNumberofEvents) << endl;
+   cout << "" << endl;
+   cout << "eff1 = " << float(count_step1)/float(totalNumberofEvents) << endl;
+   cout << "" << endl;
+   cout << "eff2 = " << float(count_step2)/float(totalNumberofEvents) << endl;
+   cout << "" << endl;
+   cout << "eff3 = " << float(count_step3)/float(totalNumberofEvents) << endl;
+   cout << "" << endl;
+   
+   cout << "N expected (final) " << float(N_expected)*(float(count_step3)/float(totalNumberofEvents)) << endl;
+   
    t1.Write();
    
      // TFile f1("histos.root","RECREATE");
@@ -1186,7 +1241,7 @@ void MyClass::Loop()
     
     h_HT_G->Write();h_ptb_v_sum->Write();
     h_dPhi_ZH_G->Write();
-    h_dM_min->Write(); h_dM_max->Write(); h_pt_Lep->Write();
+    h_dM_min->Write(); h_dM_max->Write(); h_pt_Z_G->Write();
     h_m_H_G->Write();  h_m_Z_G->Write();
     h_pt_1_truth->Write(); h_pt_2_truth->Write(); h_pt_3_truth->Write(); h_pt_4_truth->Write();
     h_pt_1_global->Write(); h_pt_2_global->Write(); h_pt_3_global->Write(); h_pt_4_global->Write();
