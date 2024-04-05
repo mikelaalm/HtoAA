@@ -25,15 +25,34 @@ using namespace TMVA;
 
 void TMVAClassification()
 {
-  TFile* outputFile = TFile::Open("TMVA.root", "RECREATE");
+  TFile *outputFile = TFile::Open("TMVA.root", "RECREATE");
 
   TMVA::Factory *factory = new TMVA::Factory("MVAnalysis", outputFile, "!V");
-  TMVA::DataLoader *dataloader = new TMVA::DataLoader("dataset");
+
+  TMVA::DataLoader *dataloader = new TMVA::DataLoader("MVAnalysis");
+
   TFile *input1 = TFile::Open("histos_M20.root");
   TFile *input2 = TFile::Open("histos_DY.root");
+  
+  // dataloader->AddSignalTree ((TTree*)input1->Get("t1"));
+  // dataloader->AddBackgroundTree ((TTree*)input2->Get("t1"));
+  
 
-  dataloader->AddSignalTree ((TTree*)input1->Get("t1"), 1.0);
-  dataloader->AddBackgroundTree ((TTree*)input2->Get("t1"), 1.0);
+  TTree *sigTree = (TTree*)input1->Get("t1");
+  TTree *bgTree = (TTree*)input2->Get("t1");
+
+  float bg_weight(1.0);
+  float sig_weight(1.0);
+
+
+  TLeaf *xpos_bg = bgTree->GetLeaf("weight"); xpos_bg->GetBranch()->GetEntry(1);
+  bg_weight = xpos_bg->GetValue();
+  
+  TLeaf *xpos_sig = sigTree->GetLeaf("weight"); xpos_sig->GetBranch()->GetEntry(1);
+  sig_weight = xpos_sig->GetValue();
+
+  dataloader->AddSignalTree(sigTree, sig_weight);
+  dataloader->AddBackgroundTree(bgTree, bg_weight);
 
   dataloader->AddVariable("m_H", 'F');
   dataloader->AddVariable("pt_H", 'F');
@@ -47,13 +66,19 @@ void TMVAClassification()
   dataloader->AddVariable("dR_ll", 'F');
   dataloader->AddVariable("dPhi_ZH", 'F');
   dataloader->AddVariable("n_jets_after_cuts", 'F');
-  
-  
-  TCut mycuts = "(m_reduced != -999) && (dM_A1_A2 != -999)";
-  TCut mycutb = "(m_reduced != -999) && (dM_A1_A2 != -999)";
+  //dataloader->AddVariable("weight", 'F');
+
+
+ 
+  //TCut mycuts = "(m_reduced != -999) && (dM_A1_A2 != -999)";
+  //TCut mycutb = "(m_reduced != -999) && (dM_A1_A2 != -999)";
 			
-	 
-  dataloader->PrepareTrainingAndTestTree(mycuts, mycutb,"SplitMode=Random:!V");
+  //dataloader->SetSignalWeightExpression("weight");
+  //dataloader->SetBackgroundWeightExpression("weight");
+ 
+  
+			       
+  dataloader->PrepareTrainingAndTestTree("" ,"SplitMode=Random:!V");
 					
   
   factory->BookMethod(dataloader, TMVA::Types::kBDT, "BDT","!H:!V:NTrees=1000:MinNodeSize=5.0%:BoostType=AdaBoost:AdaBoostBeta=0.5:UseBaggedBoost:BaggedSampleFraction=0.5:SeparationType=GiniIndex:nCuts=20" );
