@@ -124,7 +124,7 @@ public :
    Float_t         met_pt;
    Float_t         met_phi;
    Float_t         met_sumMET;
-
+  Float_t totalNumberofEvents;
    // List of branches
    TBranch        *b_run;   //!
    TBranch        *b_lumi;   //!
@@ -229,6 +229,8 @@ public :
    TBranch        *b_met_phi;   //!
    TBranch        *b_met_sumMET;   //!
 
+  TFile *f;
+  
    MyClass(TTree *tree=0);
    virtual ~MyClass();
    virtual Int_t    Cut(Long64_t entry);
@@ -248,13 +250,16 @@ MyClass::MyClass(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("analysis_DY.root");
+      f = (TFile*)gROOT->GetListOfFiles()->FindObject("analysis_DY_1.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("analysis_DY.root");
+         f = new TFile("analysis_DY_1.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("analysis_DY.root:/mainNtuplizer");
+      TDirectory *dir = (TDirectory*)f->Get("analysis_DY_1.root:/mainNtuplizer");
       dir->GetObject("data",tree);
 
+                  
+      TH1F* nevtH = (TH1F *) f->Get("mainNtuplizer/nevents");
+      totalNumberofEvents = nevtH->GetBinContent(1);
    }
    Init(tree);
 }
