@@ -89,9 +89,12 @@ void MyClass::Loop()
    } else if (filename.Contains("DY")) {
      fname=TString::Format("histos_DY%s.root", njet.Data());
      //fname="histos_DY" + njet + ".root";
-   } else {
+   } else if (filename.Contains("Dileptonic")) {
      fname="histos_TT_Dileptonic.root";
+   } else {
+     fname="histos_TT_Semileptonic.root";
    }
+     
 
    TFile fout(fname.Data(),"RECREATE");
 
@@ -285,7 +288,8 @@ void MyClass::Loop()
   TH1F *h_m_Z   = new TH1F("h_m_Z"   , " ; m(2l) [GeV]    ; Events"  , 100, 0., 300.);
   TH1F *h_phi_Z = new TH1F("h_phi_Z" , " ; #phi (2l); Events"  , 100, -TMath::Pi(), TMath::Pi());
   TH1F *h_eta_Z = new TH1F("h_eta_Z" , " ; #eta (2l); Events"  , 100, -5., 5.);
-
+  TH1F *h_mll_before_cut = new TH1F("h_mll_before_cut", " ; m_{Z} ; Events", 100, 0., 300.);
+  
   TH1F *h_dPhi_ZH    = new TH1F("h_dPhi_ZH"    , " ; |#Delta#phi|(H,Z); Events", 100, 0., TMath::Pi());
   
   //scalar sum of pT of jets
@@ -343,6 +347,9 @@ void MyClass::Loop()
   //mass variables
   TH1F *h_dM_A1_A2 = new TH1F("h_dM_A1_A2", " ; m(A_{1}) - m(A_{2}) ; Events", 100, -400., 200.);
   TH1F *h_m_reduced = new TH1F("h_m_reduced", "; m reduced ; Events", 100, -100., 600.);
+
+  
+  
   
   
   TTree t1("t1", "A Tree with variables for the MVA");
@@ -409,7 +416,10 @@ void MyClass::Loop()
   //TT Dileptonic
   float sigma_TT_Dileptonic = 88.29; //[pb]
   float N_expected_TT_Dileptonic = sigma_TT_Dileptonic*L_int;
-  
+
+  //TT Semileptonic
+  float sigma_TT_Semileptonic = 365.34; //[pb]
+  float N_expected_TT_Semileptonic = sigma_TT_Semileptonic*L_int;
   
 
   if(signal){
@@ -475,6 +485,17 @@ void MyClass::Loop()
     cout << "" << endl;
     cout << "TT dileptonic weight: " << weight << endl;
     N_expected = N_expected_TT_Dileptonic;
+    
+  }
+
+  if(fname == "histos_TT_Semileptonic.root"){
+
+    cout << "" << endl;
+    cout << "Number of expected events in TT Semileptonic background: " << N_expected_TT_Semileptonic << endl;
+    weight = N_expected_TT_Semileptonic/totalNumberofEvents;
+    cout << "" << endl;
+    cout << "TT Semileptonic weight: " << weight << endl;
+    N_expected = N_expected_TT_Semileptonic;
     
   }
 
@@ -1063,8 +1084,13 @@ void MyClass::Loop()
     if(vec_leptons.size()<2) continue; //at least 2 leptons
     count_step1++;
 
+    
+
     float mll=(vec_leptons[0]+vec_leptons[1]).M();
-    if (mll > 100. || mll < 80.) continue;
+    
+    h_mll_before_cut->Fill(mll, weight); //dilepton mass before applying the Z mass window
+    
+    if (mll > 110. || mll < 80.) continue;
     count_step2++;
     
     h_n_jets->Fill(vec_jet.size(), weight);
@@ -1134,7 +1160,7 @@ void MyClass::Loop()
     pt_Z = pLeptonic.Pt();
     h_pt_Z->Fill(pt_Z, weight); 
     float m_Z = pLeptonic.M();
-    h_m_Z->Fill(m_Z, weight);
+    h_m_Z->Fill(m_Z, weight); 
 
     float eta_H = pHadronic.Eta(); h_eta_H->Fill(eta_H);
     float eta_Z = pLeptonic.Eta(); h_eta_Z->Fill(eta_Z);
@@ -1323,7 +1349,7 @@ void MyClass::Loop()
    cout << "step4: " << count_step4 << endl;
    cout << "" << endl;
    
-   cout << "eff0 = " << int(totalNumberofEvents)/float(totalNumberofEvents) << endl;
+   cout << "eff0 = " << float(totalNumberofEvents)/float(totalNumberofEvents) << endl;
    cout << "" << endl;
    cout << "eff1 = " << int(count_step1)/float(totalNumberofEvents) << endl; //step 1: at least 2 leptons
    cout << "" << endl;
@@ -1428,6 +1454,9 @@ void MyClass::Loop()
     h_m_reduced->Write();
 
     h_pt_b1->Write();
+
+    h_mll_before_cut->Write();
+    
     fout.Close();
   
    
