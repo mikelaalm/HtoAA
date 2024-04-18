@@ -25,7 +25,7 @@ using namespace TMVA;
 
 void TMVAClassification()
 {
-  TFile *outputFile = TFile::Open("TMVA.root", "RECREATE");
+  TFile *outputFile = TFile::Open("TMVA_no_mass_var.root", "RECREATE");
 
   TMVA::Factory *factory = new TMVA::Factory("MVAnalysis", outputFile, "!V");
 
@@ -98,8 +98,8 @@ void TMVAClassification()
   dataloader->AddVariable("dR_ll", 'F');
   dataloader->AddVariable("dPhi_ZH", 'F');
   dataloader->AddVariable("n_jets_after_cuts", 'F');
-  //dataloader->AddVariable("weight", 'F');
-
+  dataloader->AddVariable("btag_3", 'F');
+  dataloader->AddVariable("met_pt", 'F');
 
  
   //TCut mycuts = "(m_reduced != -999) && (dM_A1_A2 != -999)";

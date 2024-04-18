@@ -70,8 +70,6 @@ void MyClass::Loop()
   bool verbose(false);
   bool signal(false);
   
- 
-  
   TString filename=std::string(f->GetName());
   cout << "input file name: " << filename << endl;
   
@@ -348,7 +346,8 @@ void MyClass::Loop()
   TH1F *h_dM_A1_A2 = new TH1F("h_dM_A1_A2", " ; m(A_{1}) - m(A_{2}) ; Events", 100, -400., 200.);
   TH1F *h_m_reduced = new TH1F("h_m_reduced", "; m reduced ; Events", 100, -100., 600.);
 
-  
+  //MET
+  TH1F *h_met_pt = new TH1F("h_met_pt", " ; missing E_{T} ; Events", 100, 0., 500.);
   
   
   
@@ -368,6 +367,8 @@ void MyClass::Loop()
   float dPhi_ZH;
   int n_jets_after_cuts;
   float weight(1.);
+  float btag_3;
+  float met_pt_;
   
   t1.Branch("m_H", &m_H, "m_H/F");
   t1.Branch("pt_H", &pt_H, "pt_H/F");
@@ -382,6 +383,8 @@ void MyClass::Loop()
   t1.Branch("dPhi_ZH", &dPhi_ZH, "dPhi_ZH/F");
   t1.Branch("n_jets_after_cuts", &n_jets_after_cuts, "n_jets_after_cuts/I");
   t1.Branch("weight", &weight, "weight/F");
+  t1.Branch("btag_3", &btag_3, "btag_3/F");
+  t1.Branch("met_pt", &met_pt, "met_pt/F");
   
   Long64_t nentries = fChain->GetEntriesFast();
 
@@ -480,10 +483,10 @@ void MyClass::Loop()
   if(fname == "histos_TT_Dileptonic.root"){
 
     cout << "" << endl;
-    cout << "Number of expected events in TT dileptonic background: " << N_expected_TT_Dileptonic << endl;
+    cout << "Number of expected events in TT Dileptonic background: " << N_expected_TT_Dileptonic << endl;
     weight = N_expected_TT_Dileptonic/totalNumberofEvents;
     cout << "" << endl;
-    cout << "TT dileptonic weight: " << weight << endl;
+    cout << "TT Dileptonic weight: " << weight << endl;
     N_expected = N_expected_TT_Dileptonic;
     
   }
@@ -525,14 +528,15 @@ void MyClass::Loop()
     vector<TLorentzVector> vec_AA;
     vector<TLorentzVector> vec_bb1;                  //b quarks from A1 with mc_momidx=6
     vector<TLorentzVector> vec_bb2;                  //b quarks from A2 with mc_momidx=7
-    vector<TLorentzVector> vec_ll;                    //antilepton (l1) and lepton (l2) from Z with mc_momidx=2
-    //TLorentzVector pb1 , pb2, pb3, pb4;          //b quarks regardless of mc_momidx
+    vector<TLorentzVector> vec_ll;                   //antilepton (l1) and lepton (l2) from Z with mc_momidx=2
+    //TLorentzVector pb1 , pb2, pb3, pb4;            //b quarks regardless of mc_momidx
     vector<TLorentzVector> pb;
 
     
     for (Int_t imc=0; imc<nmcparticles; imc++){
 
       if(verbose && jentry<10) {
+	
 	cout << "imcparticle " << imc << " : is a " << mc_id[imc] << ", and has a mother at: " << mc_momidx[imc] << "(" << mc_mom[imc] << " )" << "and has a 4-vector p = (" << mc_en[imc] << ", " << mc_px[imc] << ", " << mc_py[imc] << ", " << mc_pz[imc] << " ). Also, its status is:"<< mc_status[imc] << endl;
       }
       
@@ -670,287 +674,301 @@ void MyClass::Loop()
     //start the final state analysis
     if(vec_ll.size()>=2){
       if(pb.size()>=3){ 
+	
+	if(signal){
 
-    if(signal){
-
-    //kinematics
-    //A bosons:
-    h_ptA1->Fill(vec_AA[0].Pt(), weight); h_etaA1->Fill(vec_AA[0].Eta(), weight); h_phiA1->Fill(vec_AA[0].Phi(), weight); h_mA1->Fill(vec_AA[0].M(), weight);
-    h_ptA2->Fill(vec_AA[1].Pt(), weight); h_etaA2->Fill(vec_AA[1].Eta(), weight); h_phiA2->Fill(vec_AA[1].Phi(), weight); h_mA2->Fill(vec_AA[1].M(), weight); 
-    //leptons:
-    h_pt_l1->Fill(vec_ll[0].Pt(), weight);  h_eta_l1->Fill(vec_ll[0].Eta(), weight); h_phi_l1->Fill(vec_ll[0].Phi(), weight); 
-    h_pt_l2->Fill(vec_ll[1].Pt(), weight);  h_eta_l2->Fill(vec_ll[1].Eta(), weight); h_phi_l2->Fill(vec_ll[1].Phi(), weight);
-    //quarks:
-    h_ptb11->Fill(vec_bb1[0].Pt(), weight); h_etab11->Fill(vec_bb1[0].Eta(), weight); h_phib11->Fill(vec_bb1[0].Phi(), weight);
-    h_ptb12->Fill(vec_bb1[1].Pt(), weight); h_etab12->Fill(vec_bb1[1].Eta(), weight); h_phib12->Fill(vec_bb1[1].Phi(), weight);
-    h_ptb21->Fill(vec_bb2[0].Pt(), weight); h_etab21->Fill(vec_bb2[0].Eta(), weight); h_phib21->Fill(vec_bb2[0].Phi(), weight);
-    h_ptb22->Fill(vec_bb2[1].Pt(), weight); h_etab22->Fill(vec_bb2[1].Eta(), weight); h_phib22->Fill(vec_bb2[1].Phi(), weight);
-
-    }
+	  //kinematics
+	  //A bosons:
+	  h_ptA1->Fill(vec_AA[0].Pt(), weight); h_etaA1->Fill(vec_AA[0].Eta(), weight); h_phiA1->Fill(vec_AA[0].Phi(), weight); h_mA1->Fill(vec_AA[0].M(), weight);
+	  h_ptA2->Fill(vec_AA[1].Pt(), weight); h_etaA2->Fill(vec_AA[1].Eta(), weight); h_phiA2->Fill(vec_AA[1].Phi(), weight); h_mA2->Fill(vec_AA[1].M(), weight); 
+	  //leptons:
+	  h_pt_l1->Fill(vec_ll[0].Pt(), weight);  h_eta_l1->Fill(vec_ll[0].Eta(), weight); h_phi_l1->Fill(vec_ll[0].Phi(), weight); 
+	  h_pt_l2->Fill(vec_ll[1].Pt(), weight);  h_eta_l2->Fill(vec_ll[1].Eta(), weight); h_phi_l2->Fill(vec_ll[1].Phi(), weight);
+	  //quarks:
+	  h_ptb11->Fill(vec_bb1[0].Pt(), weight); h_etab11->Fill(vec_bb1[0].Eta(), weight); h_phib11->Fill(vec_bb1[0].Phi(), weight);
+	  h_ptb12->Fill(vec_bb1[1].Pt(), weight); h_etab12->Fill(vec_bb1[1].Eta(), weight); h_phib12->Fill(vec_bb1[1].Phi(), weight);
+	  h_ptb21->Fill(vec_bb2[0].Pt(), weight); h_etab21->Fill(vec_bb2[0].Eta(), weight); h_phib21->Fill(vec_bb2[0].Phi(), weight);
+	  h_ptb22->Fill(vec_bb2[1].Pt(), weight); h_etab22->Fill(vec_bb2[1].Eta(), weight); h_phib22->Fill(vec_bb2[1].Phi(), weight);
+	  
+	}
 									
     
-    // Define hadronic and leptonic system
-    
-    TLorentzVector pHad;
-    
-    for(std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
-      pHad += pb[i];
-    }
-    
-    TLorentzVector pLep = vec_ll[0] + vec_ll[1];
-    
-
-    // SOME GENERATOR LEVEL KINEMATICS
-    //--------------------------------
-    
-    //calculating deltaR for the pair of A particles
-    
-    if(signal){
-    float   detaA = fabs(vec_AA[0].Eta()   - vec_AA[1].Eta())  ;
-    float   dphiA = fabs(vec_AA[0].Phi()   - vec_AA[1].Phi())  ;
-    float   dRA   = sqrt(detaA*detaA + dphiA*dphiA);
-
-    h_dRA->Fill(dRA, weight);
-       
-
-
-    //calculating deltaR for the first pair of b quarks: b11 and b12
-
-    float   deta1 = fabs(vec_bb1[0].Eta()  - vec_bb1[1].Eta()) ;
-    float   dphi1 = fabs(vec_bb1[0].Phi()  - vec_bb1[1].Phi()) ;
-    float   dR1   = sqrt(deta1*deta1 + dphi1*dphi1);
-
-    h_dR1->Fill(dR1, weight);
-
-    //calculating deltaR for the second pair of b quarks: b21 and b22
-
-    float   deta2 = fabs(vec_bb2[0].Eta()  - vec_bb2[1].Eta()) ;
-    float   dphi2 = fabs(vec_bb2[0].Phi()  - vec_bb2[1].Phi()) ;
-    float   dR2   = sqrt(deta2*deta2 + dphi2*dphi2);
-
-    h_dR2->Fill(dR2, weight);
-    
-
-    //calculating and storing transverse momenta for the 4 b quarks
-    
-    double ptB_truth[4]={vec_bb1[0].Pt(),vec_bb1[1].Pt(),vec_bb2[0].Pt(),vec_bb2[1].Pt()};
-    
-    //sorting the array in descending order
-    
-    std::sort(ptB_truth, ptB_truth + 4, std::greater<float>()); //now the maximum pT value is in pt[0] and the minimum pT in pt[3]
-    
-    h_maxptB_truth->Fill(ptB_truth[0], weight); // Fill with the maximum value after sorting
-    h_minptB_truth->Fill(ptB_truth[3], weight); // Fill with the minimum value after sorting
-
-    //fill histograms with the pt of each b quark in descending order
-    
-    h_pt_1_truth->Fill(ptB_truth[0], weight); 
-    h_pt_2_truth->Fill(ptB_truth[1], weight);
-    h_pt_3_truth->Fill(ptB_truth[2], weight); 
-    h_pt_4_truth->Fill(ptB_truth[3], weight);
-    
-    }
-    
-
-    //sorting the lepton vector based on pT in descending order
-
-    std::sort(vec_ll.begin(), vec_ll.end(), [](const TLorentzVector& e, const TLorentzVector& f){
-    return e.Pt() > f.Pt();
-    });
-
-    //filling histogrmas with pT of the 2 most energetic leptons
-    h_pt_leadL->Fill(vec_ll[0].Pt(), weight);
-    h_pt_subleadL->Fill(vec_ll[1].Pt(), weight);
-
-    //DR(ll)
-    float   deta_ll_G = fabs(vec_ll[0].Eta()   - vec_ll[1].Eta())  ;
-    float   dphi_ll_G = fabs(vec_ll[0].Phi()   - vec_ll[1].Phi())  ;
-    float   dR_ll_G   = sqrt(deta_ll_G*deta_ll_G + dphi_ll_G*dphi_ll_G);
-    h_dR_ll_G->Fill(dR_ll_G, weight);
-
-
-    
-    // CALCULATE GLOBAL EVENT VARIABLES
-    //---------------------------------
-    
-    
-    //calculating the scalar sum of of the pT of the q/g's (HT)
-        
-    float HT_G = 0;
-    for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
-      HT_G += pb[i].Pt();
-    }
-    
-    h_HT_G->Fill(HT_G, weight);
-
-    //calculating the vector sum of the pT of the q/g's
-
-    float ptb_v_sum = pHad.Pt();
-    h_ptb_v_sum->Fill(ptb_v_sum, weight);
-
-    
-    //sorting pb vector based on pT in descending order
-    std::sort(pb.begin(), pb.end(), [](const TLorentzVector& g, const TLorentzVector& h) {
-    return g.Pt() > h.Pt();
-    });
-
-    //filling histograms with pT of the most energetic q/g's
- 
-    h_pt_1_global->Fill(pb[0].Pt(), weight);
-      
-    h_pt_2_global->Fill(pb[1].Pt(), weight);
-      
-    h_pt_3_global->Fill(pb[2].Pt(), weight);
-
-    if(pb.size()>3)  h_pt_4_global->Fill(pb[3].Pt(), weight);
-      
-    //calculating DeltaPhi(hadronic,leptonic) and pHad.M(), pLep.M()
-    
-    float phi_H_G = pHad.Phi(); h_phi_H_G->Fill(phi_H_G);
-    float phi_Z_G = pLep.Phi(); h_phi_Z_G->Fill(phi_Z_G);
-    float dPhi_ZH_G = fabs(pHad.Phi()-pLep.Phi());
-    if(dPhi_ZH_G >  TMath::Pi()) dPhi_ZH_G = 2*TMath::Pi() - dPhi_ZH_G;
-    h_dPhi_ZH_G-> Fill(dPhi_ZH_G, weight);
-    
-    float m_H_G  = pHad.M();  h_m_H_G->Fill(m_H_G, weight);
-    float m_Z_G  = pLep.M();  h_m_Z_G->Fill(m_Z_G, weight);
-    
-    float pt_Z_G = pLep.Pt(); h_pt_Z_G->Fill(pt_Z_G, weight);
-    
-    // if(pb.size()>=4){
-    // //calculating the minimum and maximum difference between 2 b quark pair masses
-    
-    // float dM[3];
-    
-    // //6 combinations of b quarks: b1+b2, b1+b3, b1+b4, b2+b3, b2+b4, b3+b4 and 3 combinations of bb pairs
-	 
-    // dM[0] = fabs((pb[0]+pb[1]).M()-(pb[3]+pb[2]).M());
-    // dM[1] = fabs((pb[0]+pb[2]).M()-(pb[1]+pb[3]).M());
-    // dM[2] = fabs((pb[0]+pb[3]).M()-(pb[1]+pb[2]).M());  
- 
-    // //sorting the array in descending order
-
-    // std::sort(dM, dM + 3, std::greater<float>()); //now the maximum dM value is in dM[0] and the minimum dM value is in dM[2]
-
-    // h_dM_min->Fill(dM[2]);
-    // h_dM_max->Fill(dM[0]);
-    // }
-    
-    if(signal){
-    //pT_2b - m_2b plane truth
-    float m_2b_A1  = (vec_bb1[0]+vec_bb1[1]).M();
-    float m_2b_A2  = (vec_bb2[0]+vec_bb2[1]).M();
-
-    float pT_2b_truth_vector = (vec_bb1[0] + vec_bb1[1]).Pt();
-    float pT_2b_truth_vector_other = (vec_bb2[0] + vec_bb2[1]).Pt();
-    
-    h_pt2b_m2b_truth_vector->Fill(m_2b_A1, pT_2b_truth_vector, weight);
-
-    h_pt2b_m2b_truth_vector_other->Fill(m_2b_A2, pT_2b_truth_vector_other, weight);
-
-    h_pt2b_truth_vector->Fill(pT_2b_truth_vector, weight);
-
-    h_pt2b_truth_vector_other->Fill(pT_2b_truth_vector_other, weight);
-    }
-   
-    //minimum dR analysis
-    
-    //6 possible pairs of b quarks: (1):b1b2, (2):b1b3, (3):b1b4, (4):b2b3, (5):b2b4, (6):b3b4
-  
-    float dR_min_1 = 999;
-    TLorentzVector b1_min, b2_min;
-
-    for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); ++i) {
-      TLorentzVector b1 = pb[i];
-      
-      for (std::vector<TLorentzVector>::size_type j = i + 1; j < pb.size(); ++j) {
-
-        TLorentzVector b2 = pb[j];
-
-        float deta = fabs(b1.Eta() - b2.Eta());
-        float dphi = fabs(b1.Phi() - b2.Phi());
-        float dR = sqrt(deta * deta + dphi * dphi);
-
-       
-        if (dR < dR_min_1) {
-            dR_min_1 = dR;
-            b1_min   = b1;
-            b2_min   = b2;
-  
-        }
+	// Define hadronic and leptonic system
 	
-      }
-    }
-     
-
-     //MIN DR histograms
+	TLorentzVector pHad;
+	
+	for(std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
+	  if(i==4) break;
+	  pHad += pb[i];
+	}
+	
     
-     float m_2b_min_dR = (b1_min + b2_min).M();
-     float pT_2b_min_dR_vector = (b1_min + b2_min).Pt();
-     
-     h_pt2b_m2b_mindR_vector->Fill(m_2b_min_dR, pT_2b_min_dR_vector, weight);
-    
-     
-     vector<TLorentzVector> b_other;
-     
-     for (std::vector<TLorentzVector>::size_type i = 0; i<pb.size(); ++i){
-
-       TLorentzVector b = pb[i];
-     
-       if(b!=b1_min && b!=b2_min){
-	 b_other.push_back(pb[i]);
-       }
-     }
-
-     float deta_min_G = fabs(b1_min.Eta() - b2_min.Eta());
-     float dphi_min_G = fabs(b1_min.Phi() - b2_min.Phi());
-     float dR_min_G   = sqrt(deta_min_G * deta_min_G + dphi_min_G * dphi_min_G);
-
-
-     if(b_other.size()>=2) { // if there is a 2nd pair (ie total 4 quarks/gluons)
-       
-       TLorentzVector  b1_other = b_other[0];
-       TLorentzVector  b2_other = b_other[1];
-     
-       //OTHER
-       float m_2b_other  = (b1_other + b2_other).M();
-       float pT_2b_other_vector = (b1_other + b2_other).Pt();
-       
-       h_pt2b_m2b_other_vector -> Fill(m_2b_other, pT_2b_other_vector, weight);
-       
-       //correlations
-       h_m1_m2->Fill(m_2b_min_dR, m_2b_other, weight);
-       
-       h_pT1_pT2_vector->Fill(pT_2b_min_dR_vector, pT_2b_other_vector, weight);
+	TLorentzVector pLep = vec_ll[0] + vec_ll[1];
     
 
-       float deta_other_G = fabs(b1_other.Eta() - b2_other.Eta());
-       float dphi_other_G = fabs(b1_other.Phi() - b2_other.Phi());
-       float dR_other_G   = sqrt(deta_other_G * deta_other_G + dphi_other_G * dphi_other_G);
+	// SOME GENERATOR LEVEL KINEMATICS
+	//--------------------------------
+	
+	//calculating deltaR for the pair of A particles
+	
+	if(signal){
+	  float   detaA = fabs(vec_AA[0].Eta()   - vec_AA[1].Eta())  ;
+	  float   dphiA = fabs(vec_AA[0].Phi()   - vec_AA[1].Phi())  ;
+	  float   dRA   = sqrt(detaA*detaA + dphiA*dphiA);
+	  
+	  h_dRA->Fill(dRA, weight);
+	  
+	  
+	  
+	  //calculating deltaR for the first pair of b quarks: b11 and b12
+	  
+	  float   deta1 = fabs(vec_bb1[0].Eta()  - vec_bb1[1].Eta()) ;
+	  float   dphi1 = fabs(vec_bb1[0].Phi()  - vec_bb1[1].Phi()) ;
+	  float   dR1   = sqrt(deta1*deta1 + dphi1*dphi1);
+	  
+	  h_dR1->Fill(dR1, weight);
+	  
+	  //calculating deltaR for the second pair of b quarks: b21 and b22
+	  
+	  float   deta2 = fabs(vec_bb2[0].Eta()  - vec_bb2[1].Eta()) ;
+	  float   dphi2 = fabs(vec_bb2[0].Phi()  - vec_bb2[1].Phi()) ;
+	  float   dR2   = sqrt(deta2*deta2 + dphi2*dphi2);
+	  
+	  h_dR2->Fill(dR2, weight);
+	  
+	  
+	  //calculating and storing transverse momenta for the 4 b quarks
+	  
+	  double ptB_truth[4]={vec_bb1[0].Pt(),vec_bb1[1].Pt(),vec_bb2[0].Pt(),vec_bb2[1].Pt()};
+	  
+	  //sorting the array in descending order
+	  
+	  std::sort(ptB_truth, ptB_truth + 4, std::greater<float>()); //now the maximum pT value is in pt[0] and the minimum pT in pt[3]
+	  
+	  h_maxptB_truth->Fill(ptB_truth[0], weight); // Fill with the maximum value after sorting
+	  h_minptB_truth->Fill(ptB_truth[3], weight); // Fill with the minimum value after sorting
+	  
+	  //fill histograms with the pt of each b quark in descending order
+	  
+	  h_pt_1_truth->Fill(ptB_truth[0], weight); 
+	  h_pt_2_truth->Fill(ptB_truth[1], weight);
+	  h_pt_3_truth->Fill(ptB_truth[2], weight); 
+	  h_pt_4_truth->Fill(ptB_truth[3], weight);
+	  
+	}
+    
 
-       h_dRmin_dRother -> Fill(dR_min_G, dR_other_G, weight);
+	//sorting the lepton vector based on pT in descending order
+	
+	std::sort(vec_ll.begin(), vec_ll.end(), [](const TLorentzVector& e, const TLorentzVector& f){
+	  return e.Pt() > f.Pt();
+	});
 
-       h_dR_other_G->Fill(dR_other_G, weight);
+	//filling histogrmas with pT of the 2 most energetic leptons
+	h_pt_leadL->Fill(vec_ll[0].Pt(), weight);
+	h_pt_subleadL->Fill(vec_ll[1].Pt(), weight);
+	
+	//DR(ll)
+	float   deta_ll_G = fabs(vec_ll[0].Eta()   - vec_ll[1].Eta())  ;
+	float   dphi_ll_G = fabs(vec_ll[0].Phi()   - vec_ll[1].Phi())  ;
+	float   dR_ll_G   = sqrt(deta_ll_G*deta_ll_G + dphi_ll_G*dphi_ll_G);
+	h_dR_ll_G->Fill(dR_ll_G, weight);
+	
+	
+	
+	// CALCULATE GLOBAL EVENT VARIABLES
+	//---------------------------------
+	
+	
+	//calculating the scalar sum of of the pT of the q/g's (HT)
+        
+	float HT_G = 0;
+	for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
+	  HT_G += pb[i].Pt();
+	}
+    
+	h_HT_G->Fill(HT_G, weight);
 
-       h_m2b_other->Fill(m_2b_other, weight);
+	//calculating the vector sum of the pT of the q/g's
+	
+	float ptb_v_sum = pHad.Pt();
+	h_ptb_v_sum->Fill(ptb_v_sum, weight);
 
-       h_pT_other_vector->Fill(pT_2b_other_vector, weight);
+    
+	//sorting pb vector based on pT in descending order
+	std::sort(pb.begin(), pb.end(), [](const TLorentzVector& g, const TLorentzVector& h) {
+	  return g.Pt() > h.Pt();
+	});
 
-       //new mass variables
+	//filling histograms with pT of the most energetic q/g's
+	
+	h_pt_1_global->Fill(pb[0].Pt(), weight);
+	h_pt_2_global->Fill(pb[1].Pt(), weight);
+	h_pt_3_global->Fill(pb[2].Pt(), weight);
+	if(pb.size()>3)  h_pt_4_global->Fill(pb[3].Pt(), weight);
+      
+	//calculating DeltaPhi(hadronic,leptonic) and pHad.M(), pLep.M()
+	for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
+	  float phi_b_i = pb[i].Phi();
+	  if(phi_b_i<0) phi_b_i += 2.*TMath::Pi();
+	}
+	  
 
-       float dM_A1_A2_gen_level = m_2b_other - m_2b_min_dR;
-       h_dM_A1_A2_gen_level -> Fill(dM_A1_A2_gen_level, weight);
-       
-       float m_reduced_gen_level = ((b1_min + b2_min + b1_other + b2_other).M() - 125.) - (m_2b_min_dR + m_2b_other - 2*20.);
-       h_m_reduced_gen_level -> Fill(m_reduced_gen_level, weight); 
-       
+	float phi_H_G = pHad.Phi(); h_phi_H_G->Fill(phi_H_G);
+	float phi_Z_G = pLep.Phi(); h_phi_Z_G->Fill(phi_Z_G);
+	float dPhi_ZH_G = fabs(pHad.Phi()-pLep.Phi());
+	if(dPhi_ZH_G >  TMath::Pi()) dPhi_ZH_G = 2*TMath::Pi() - dPhi_ZH_G;
+	h_dPhi_ZH_G-> Fill(dPhi_ZH_G, weight);
+	
+	float m_H_G  = pHad.M();  h_m_H_G->Fill(m_H_G, weight);
+	float m_Z_G  = pLep.M();  h_m_Z_G->Fill(m_Z_G, weight);
+	
+	float pt_Z_G = pLep.Pt(); h_pt_Z_G->Fill(pt_Z_G, weight);
+	
+	// if(pb.size()>=4){
+	// //calculating the minimum and maximum difference between 2 b quark pair masses
+	
+	// float dM[3];
+    
+	// //6 combinations of b quarks: b1+b2, b1+b3, b1+b4, b2+b3, b2+b4, b3+b4 and 3 combinations of bb pairs
+	 
+	// dM[0] = fabs((pb[0]+pb[1]).M()-(pb[3]+pb[2]).M());
+	// dM[1] = fabs((pb[0]+pb[2]).M()-(pb[1]+pb[3]).M());
+	// dM[2] = fabs((pb[0]+pb[3]).M()-(pb[1]+pb[2]).M());  
  
-     }
-       
+	// //sorting the array in descending order
 
-     h_dR_min_G->Fill(dR_min_G, weight);
-     h_pT_min_vector->Fill(pT_2b_min_dR_vector, weight);
-     h_m2b_mindR->Fill(m_2b_min_dR, weight);
+	// std::sort(dM, dM + 3, std::greater<float>()); //now the maximum dM value is in dM[0] and the minimum dM value is in dM[2]
+
+	// h_dM_min->Fill(dM[2]);
+	// h_dM_max->Fill(dM[0]);
+	// }
+    
+	if(signal){
+	  //pT_2b - m_2b plane truth
+	  float m_2b_A1  = (vec_bb1[0]+vec_bb1[1]).M();
+	  float m_2b_A2  = (vec_bb2[0]+vec_bb2[1]).M();
+	  
+	  float pT_2b_truth_vector = (vec_bb1[0] + vec_bb1[1]).Pt();
+	  float pT_2b_truth_vector_other = (vec_bb2[0] + vec_bb2[1]).Pt();
+	  
+	  h_pt2b_m2b_truth_vector->Fill(m_2b_A1, pT_2b_truth_vector, weight);
+	  
+	  h_pt2b_m2b_truth_vector_other->Fill(m_2b_A2, pT_2b_truth_vector_other, weight);
+	  
+	  h_pt2b_truth_vector->Fill(pT_2b_truth_vector, weight);
+	  
+	  h_pt2b_truth_vector_other->Fill(pT_2b_truth_vector_other, weight);
+	}
+   
+	//minimum dR analysis
+    
+	//6 possible pairs of b quarks: (1):b1b2, (2):b1b3, (3):b1b4, (4):b2b3, (5):b2b4, (6):b3b4
+  
+	float dR_min_1 = 999;
+	TLorentzVector b1_min, b2_min;
+
+	for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); ++i) {
+	  TLorentzVector b1 = pb[i];
+	  
+	  for (std::vector<TLorentzVector>::size_type j = i + 1; j < pb.size(); ++j) {
+	    
+	    TLorentzVector b2 = pb[j];
+	    
+	    float deta = fabs(b1.Eta() - b2.Eta());
+	    float dphi = fabs(b1.Phi() - b2.Phi());
+	    float dR = sqrt(deta * deta + dphi * dphi);
+	    
+	    
+	    if (dR < dR_min_1) {
+	      dR_min_1 = dR;
+	      b1_min   = b1;
+	      b2_min   = b2;
+	      
+	    }
+	    
+	  }
+	}
+     
+
+	//MIN DR histograms
+    
+	float m_2b_min_dR = (b1_min + b2_min).M();
+	float pT_2b_min_dR_vector = (b1_min + b2_min).Pt();
+
+	float deta_min_G = fabs(b1_min.Eta() - b2_min.Eta());
+
+	float phi_b1_min=b1_min.Phi();
+	if (phi_b1_min<0) phi_b1_min += 2.*TMath::Pi();
+	float phi_b2_min=b2_min.Phi();
+	if (phi_b2_min<0) phi_b2_min += 2.*TMath::Pi();
+	
+	float dphi_min_G = fabs(phi_b1_min - phi_b2_min);
+	float dR_min_G   = sqrt(deta_min_G * deta_min_G + dphi_min_G * dphi_min_G);
+	
+	
+        h_pt2b_m2b_mindR_vector->Fill(m_2b_min_dR, pT_2b_min_dR_vector, weight);
+	
+	h_dR_min_G->Fill(dR_min_G, weight);
+	h_pT_min_vector->Fill(pT_2b_min_dR_vector, weight);
+	h_m2b_mindR->Fill(m_2b_min_dR, weight);
+	
+	// Check if 2nd pair exists:
+	vector<TLorentzVector> b_other;
+     
+	for (std::vector<TLorentzVector>::size_type i = 0; i<pb.size(); ++i){
+	  
+	  TLorentzVector b = pb[i];
+	  
+	  if(b!=b1_min && b!=b2_min){
+	    b_other.push_back(pb[i]);
+	  }
+	}
+	
+	
+	if(b_other.size()>=2) { // if there is a 2nd pair (ie total 4 quarks/gluons)
+       
+	  TLorentzVector  b1_other = b_other[0];
+	  TLorentzVector  b2_other = b_other[1];
+	  
+	  //OTHER
+	  float m_2b_other  = (b1_other + b2_other).M();
+	  float pT_2b_other_vector = (b1_other + b2_other).Pt();
+	  
+	  h_pt2b_m2b_other_vector -> Fill(m_2b_other, pT_2b_other_vector, weight);
+	  
+	  //correlations
+	  h_m1_m2->Fill(m_2b_min_dR, m_2b_other, weight);
+	  
+	  h_pT1_pT2_vector->Fill(pT_2b_min_dR_vector, pT_2b_other_vector, weight);
+	  
+	  float phi_b1_other = b1_other.Phi();
+	  if(phi_b1_other<0) phi_b1_other += 2.*TMath::Pi();
+	  float phi_b2_other = b2_other.Phi();
+	  if(phi_b2_other<0) phi_b2_other += 2.*TMath::Pi();
+	  
+	  float deta_other_G = fabs(b1_other.Eta() - b2_other.Eta());
+	  float dphi_other_G = fabs(phi_b1_other - phi_b2_other);
+	  float dR_other_G   = sqrt(deta_other_G * deta_other_G + dphi_other_G * dphi_other_G);
+	  
+	  h_dRmin_dRother -> Fill(dR_min_G, dR_other_G, weight);
+	  
+	  h_dR_other_G->Fill(dR_other_G, weight);
+	  
+	  h_m2b_other->Fill(m_2b_other, weight);
+	  
+	  h_pT_other_vector->Fill(pT_2b_other_vector, weight);
+	  
+	  //new mass variables
+	  
+	  float dM_A1_A2_gen_level = m_2b_min_dR - m_2b_other;
+	  h_dM_A1_A2_gen_level -> Fill(dM_A1_A2_gen_level, weight);
+	  
+	  float m_reduced_gen_level = ((b1_min + b2_min + b1_other + b2_other).M() - 125.) - (m_2b_min_dR + m_2b_other - 2*20.);
+	  h_m_reduced_gen_level -> Fill(m_reduced_gen_level, weight); 
+	  
+ 
+	} // end if 2nd pair exists
       
      
       }//end q/g requirement
@@ -1038,7 +1056,6 @@ void MyClass::Loop()
 
      
       if (! overlap) {
-	//      vec_jet.push_back(p_jet);
       
       JetAndBtag jet_info; //a JetAndBtag structure
       jet_info.jet = p_jet; //assign the TLV p_jet to the jet member of the structure
@@ -1049,7 +1066,9 @@ void MyClass::Loop()
       
       if (jet_btag1[i] > 0.4941) {
 	vec_bjet.push_back(p_jet); // add b-tagging	
-       }
+
+      }
+
       }
         
     } //end jet loop
@@ -1090,7 +1109,7 @@ void MyClass::Loop()
     
     h_mll_before_cut->Fill(mll, weight); //dilepton mass before applying the Z mass window
     
-    if (mll > 110. || mll < 80.) continue;
+    if (mll > 100. || mll < 80.) continue; //Z mass window
     count_step2++;
     
     h_n_jets->Fill(vec_jet.size(), weight);
@@ -1112,7 +1131,7 @@ void MyClass::Loop()
     //filling histograms with b tag discriminator
     h_btag1->Fill(vec_jet_and_btag[0].btag, weight);
     h_btag2->Fill(vec_jet_and_btag[1].btag, weight);
-    h_btag3->Fill(vec_jet_and_btag[2].btag, weight);
+    btag_3 = vec_jet_and_btag[2].btag; h_btag3->Fill(btag_3, weight);
     h_btag4->Fill(vec_jet_and_btag[3].btag, weight);
 
     
@@ -1138,15 +1157,14 @@ void MyClass::Loop()
     
     TLorentzVector pHadronic;
     for(std::vector<TLorentzVector>::size_type i=0; i<vec_jet.size(); i++){
+      if(i==4) break;
       pHadronic += vec_jet[i];
     }
 
     //Leptonic System
     
-    TLorentzVector pLeptonic;
-    for(std::vector<TLorentzVector>::size_type i=0; i<vec_leptons.size(); i++){
-      pLeptonic += vec_leptons[i];
-    }
+    TLorentzVector pLeptonic = vec_leptons[0] + vec_leptons[1];
+   
     
     //Hadronic system pT (vector sum of the pT's of the jets) and mass
     
@@ -1166,7 +1184,13 @@ void MyClass::Loop()
     float eta_Z = pLeptonic.Eta(); h_eta_Z->Fill(eta_Z);
 
     //DeltaPhi between Hadronic and Leptonic System
-    
+
+    for (std::vector<TLorentzVector>::size_type i = 0; i < vec_jet.size(); i++){
+      float phi_jet_i = vec_jet[i].Phi();
+      if(phi_jet_i<0) phi_jet_i += 2.*TMath::Pi();
+    }
+
+  
     float phi_H = pHadronic.Phi(); h_phi_H->Fill(phi_H); 
     float phi_Z = pLeptonic.Phi(); h_phi_Z->Fill(phi_Z); 
 
@@ -1230,8 +1254,13 @@ void MyClass::Loop()
 
     //minimum dR histograms
 
+    float phi_jet1_min = jet1_min.Phi();
+    if(phi_jet1_min<0) phi_jet1_min += 2.*TMath::Pi();
+    float phi_jet2_min = jet2_min.Phi();
+    if(phi_jet2_min<0) phi_jet2_min += 2.*TMath::Pi();
+    
     float deta_min = fabs(jet1_min.Eta() - jet2_min.Eta());
-    float dphi_min = fabs(jet1_min.Phi() - jet2_min.Phi());
+    float dphi_min = fabs(phi_jet1_min - phi_jet2_min);
     dR_min = sqrt(deta_min*deta_min + dphi_min*dphi_min);
     
     
@@ -1271,9 +1300,13 @@ void MyClass::Loop()
       h_pt2jets_m2jets_other -> Fill(m_2jets_other, pt_2jets_other, weight); 
 
       //correlations
+      float phi_jet1_other = jet1_other.Phi();
+      if(phi_jet1_other<0) phi_jet1_other += 2.*TMath::Pi();
+      float phi_jet2_other = jet2_other.Phi();
+      if(phi_jet2_other<0) phi_jet2_other += 2.*TMath::Pi();
       
       float deta_other = fabs(jet1_other.Eta() - jet2_other.Eta());
-      float dphi_other = fabs(jet1_other.Phi() - jet2_other.Phi());
+      float dphi_other = fabs(phi_jet1_other - phi_jet2_other);
       float dR_other   = sqrt(deta_other*deta_other + dphi_other*dphi_other);
 
 
@@ -1323,15 +1356,21 @@ void MyClass::Loop()
     
     // b tag discriminator print outs
 
-    if(verbose) {
-      float btag1 = vec_jet_and_btag[0].btag;
-      float btag2 = vec_jet_and_btag[1].btag;
-      float btag3 = vec_jet_and_btag[2].btag;
+    // if(verbose) {
+    //   float btag1 = vec_jet_and_btag[0].btag;
+    //   float btag2 = vec_jet_and_btag[1].btag;
+    //   float btag3 = vec_jet_and_btag[2].btag;
       
-      cout << "" << endl; 
-      cout << "b tag sorting: [" << btag1 << ", "  << btag2 << " , " << btag3 << " , " << endl;
-      if(vec_jet_and_btag.size()>3) cout << vec_jet_and_btag[3].btag << " ]" << endl;
-    }
+    //   cout << "" << endl; 
+    //   cout << "b tag sorting: [" << btag1 << ", "  << btag2 << " , " << btag3 << " , " << endl;
+    //   if(vec_jet_and_btag.size()>3) cout << vec_jet_and_btag[3].btag << " ]" << endl;
+    // }
+
+   
+    // MET
+
+    h_met_pt->Fill(met_pt);
+    met_pt_ = met_pt;
 
 
     t1.Fill();
@@ -1456,6 +1495,8 @@ void MyClass::Loop()
     h_pt_b1->Write();
 
     h_mll_before_cut->Write();
+
+    h_met_pt->Write();
     
     fout.Close();
   
