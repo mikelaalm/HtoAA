@@ -89,9 +89,12 @@ void MyClass::Loop()
      //fname="histos_DY" + njet + ".root";
    } else if (filename.Contains("Dileptonic")) {
      fname="histos_TT_Dileptonic.root";
-   } else {
+   } else if (filename.Contains("Semileptonic")) {
      fname="histos_TT_Semileptonic.root";
+   } else {
+     fname="histos_TT_Hadronic.root";
    }
+   
      
 
    TFile fout(fname.Data(),"RECREATE");
@@ -423,7 +426,10 @@ void MyClass::Loop()
   //TT Semileptonic
   float sigma_TT_Semileptonic = 365.34; //[pb]
   float N_expected_TT_Semileptonic = sigma_TT_Semileptonic*L_int;
-  
+
+  //TT Hadronic
+  float sigma_TT_Hadronic = 377.96; //[pb]
+  float N_expected_TT_Hadronic = sigma_TT_Hadronic*L_int;
 
   if(signal){
 
@@ -502,6 +508,17 @@ void MyClass::Loop()
     
   }
 
+  if(fname == "histos_TT_Hadronic.root"){
+
+    cout << "" << endl;
+    cout << "Number of expected events in TT Hadronic background: " << N_expected_TT_Hadronic << endl;
+    weight = N_expected_TT_Hadronic/totalNumberofEvents;
+    cout << "" << endl;
+    cout << "TT Hadronic weight: " << weight << endl;
+    N_expected = N_expected_TT_Hadronic;
+
+  }
+  
   int count_step1(0);
   int count_step2(0);
   int count_step3(0);
@@ -808,10 +825,11 @@ void MyClass::Loop()
 	if(pb.size()>3)  h_pt_4_global->Fill(pb[3].Pt(), weight);
       
 	//calculating DeltaPhi(hadronic,leptonic) and pHad.M(), pLep.M()
-	for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
-	  float phi_b_i = pb[i].Phi();
-	  if(phi_b_i<0) phi_b_i += 2.*TMath::Pi();
-	}
+
+	// for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
+	//   float phi_b_i = pb[i].Phi();
+	//   if(phi_b_i<0) phi_b_i += 2.*TMath::Pi();
+	// }
 	  
 
 	float phi_H_G = pHad.Phi(); h_phi_H_G->Fill(phi_H_G);
@@ -899,9 +917,9 @@ void MyClass::Loop()
 	float deta_min_G = fabs(b1_min.Eta() - b2_min.Eta());
 
 	float phi_b1_min=b1_min.Phi();
-	if (phi_b1_min<0) phi_b1_min += 2.*TMath::Pi();
+	//if (phi_b1_min<0) phi_b1_min += 2.*TMath::Pi();
 	float phi_b2_min=b2_min.Phi();
-	if (phi_b2_min<0) phi_b2_min += 2.*TMath::Pi();
+	//if (phi_b2_min<0) phi_b2_min += 2.*TMath::Pi();
 	
 	float dphi_min_G = fabs(phi_b1_min - phi_b2_min);
 	float dR_min_G   = sqrt(deta_min_G * deta_min_G + dphi_min_G * dphi_min_G);
@@ -943,9 +961,9 @@ void MyClass::Loop()
 	  h_pT1_pT2_vector->Fill(pT_2b_min_dR_vector, pT_2b_other_vector, weight);
 	  
 	  float phi_b1_other = b1_other.Phi();
-	  if(phi_b1_other<0) phi_b1_other += 2.*TMath::Pi();
+	  //if(phi_b1_other<0) phi_b1_other += 2.*TMath::Pi();
 	  float phi_b2_other = b2_other.Phi();
-	  if(phi_b2_other<0) phi_b2_other += 2.*TMath::Pi();
+	  //if(phi_b2_other<0) phi_b2_other += 2.*TMath::Pi();
 	  
 	  float deta_other_G = fabs(b1_other.Eta() - b2_other.Eta());
 	  float dphi_other_G = fabs(phi_b1_other - phi_b2_other);
@@ -1087,8 +1105,6 @@ void MyClass::Loop()
     return c.Pt() > d.Pt();
     });
 
-
-
     //sort the b-tagged jets by discriminator value   
     std::sort(vec_jet_and_btag.begin(), vec_jet_and_btag.end(), sortBtag);
 
@@ -1102,7 +1118,6 @@ void MyClass::Loop()
     //selection criteria
     if(vec_leptons.size()<2) continue; //at least 2 leptons
     count_step1++;
-
     
 
     float mll=(vec_leptons[0]+vec_leptons[1]).M();
@@ -1185,10 +1200,10 @@ void MyClass::Loop()
 
     //DeltaPhi between Hadronic and Leptonic System
 
-    for (std::vector<TLorentzVector>::size_type i = 0; i < vec_jet.size(); i++){
-      float phi_jet_i = vec_jet[i].Phi();
-      if(phi_jet_i<0) phi_jet_i += 2.*TMath::Pi();
-    }
+    // for (std::vector<TLorentzVector>::size_type i = 0; i < vec_jet.size(); i++){
+    //   float phi_jet_i = vec_jet[i].Phi();
+    //   if(phi_jet_i<0) phi_jet_i += 2.*TMath::Pi();
+    // }
 
   
     float phi_H = pHadronic.Phi(); h_phi_H->Fill(phi_H); 
@@ -1255,9 +1270,9 @@ void MyClass::Loop()
     //minimum dR histograms
 
     float phi_jet1_min = jet1_min.Phi();
-    if(phi_jet1_min<0) phi_jet1_min += 2.*TMath::Pi();
+    //if(phi_jet1_min<0) phi_jet1_min += 2.*TMath::Pi();
     float phi_jet2_min = jet2_min.Phi();
-    if(phi_jet2_min<0) phi_jet2_min += 2.*TMath::Pi();
+    //if(phi_jet2_min<0) phi_jet2_min += 2.*TMath::Pi();
     
     float deta_min = fabs(jet1_min.Eta() - jet2_min.Eta());
     float dphi_min = fabs(phi_jet1_min - phi_jet2_min);
@@ -1301,9 +1316,9 @@ void MyClass::Loop()
 
       //correlations
       float phi_jet1_other = jet1_other.Phi();
-      if(phi_jet1_other<0) phi_jet1_other += 2.*TMath::Pi();
+      //if(phi_jet1_other<0) phi_jet1_other += 2.*TMath::Pi();
       float phi_jet2_other = jet2_other.Phi();
-      if(phi_jet2_other<0) phi_jet2_other += 2.*TMath::Pi();
+      //if(phi_jet2_other<0) phi_jet2_other += 2.*TMath::Pi();
       
       float deta_other = fabs(jet1_other.Eta() - jet2_other.Eta());
       float dphi_other = fabs(phi_jet1_other - phi_jet2_other);
@@ -1369,7 +1384,7 @@ void MyClass::Loop()
    
     // MET
 
-    h_met_pt->Fill(met_pt);
+    h_met_pt->Fill(met_pt,weight);
     met_pt_ = met_pt;
 
 
