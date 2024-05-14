@@ -69,21 +69,33 @@ void MyClass::Loop()
   if (fChain == 0) return;
   bool verbose(false);
   bool signal(false);
+  bool match(false);
   
   TString filename=std::string(f->GetName());
   cout << "input file name: " << filename << endl;
-  
-  if(filename == "analysis_M20.root") signal = true;
+
+  //if(filename.Contains("_M")) signal = true;
+  if(filename == "analysis_M12.root" || filename == "analysis_M15.root" || filename == "analysis_M20.root" || filename == "analysis_M25.root" || filename == "analysis_M30.root" || filename == "analysis_M60.root") signal = true;
   TString njet;
+  TString mass_point;
   
-  if (filename.Contains("DY_1")) njet="_1";
-  else if (filename.Contains("DY_2")) njet="_2";
-  else if (filename.Contains("DY_3")) njet="_3";
-  else if (filename.Contains("DY_4")) njet="_4";
-  
+  if (filename.Contains("DY_0")) njet = "_0";
+  else if (filename.Contains("DY_1")) njet = "_1";
+  else if (filename.Contains("DY_2")) njet = "_2";
+  else if (filename.Contains("DY_3")) njet = "_3";
+  else if (filename.Contains("DY_4")) njet = "_4";
+
+  if (filename.Contains("M12")) mass_point = "_M12";
+  else if (filename.Contains("M15")) mass_point = "_M15";
+  else if (filename.Contains("M20")) mass_point = "_M20";
+  else if (filename.Contains("M25")) mass_point = "_M25";
+  else if (filename.Contains("M30")) mass_point = "_M30";
+  else if (filename.Contains("M60")) mass_point = "_M60";
+				       
+			     
   TString fname="histos.root";
    if(signal) {
-     fname="histos_M20.root";
+     fname=TString::Format("histos%s.root", mass_point.Data());
    } else if (filename.Contains("DY")) {
      fname=TString::Format("histos_DY%s.root", njet.Data());
    } else if (filename.Contains("Dileptonic")) {
@@ -132,32 +144,32 @@ void MyClass::Loop()
    
   //create histograms for the first b quark (imc=8 & mc_momidx=6)
 
-  TH1F *h_ptb11  = new TH1F("h_ptb11" ," ; b_{11} p_{T} ; Events",100,0.,500.);
-  TH1F *h_etab11 = new TH1F("h_etab11"," ; b_{11} #eta  ; Events",100,-5.,-5.);
-  TH1F *h_phib11 = new TH1F("h_phib11"," ; b_{11} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
-  //TH1F *h_mb11 = new TH1F("h_mb11"  ," ; b_{11} mass  ; Events",100,2.,10.);
+  TH1F *h_ptb11  = new TH1F("h_ptb11" , " ; b_{11} p_{T} ; Events",100,0.,500.);
+  TH1F *h_etab11 = new TH1F("h_etab11", " ; b_{11} #eta  ; Events",100,-5.,-5.);
+  TH1F *h_phib11 = new TH1F("h_phib11", " ; b_{11} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_mb11   = new TH1F("h_mb11"  , " ; b_{11} mass  ; Events",100,0.,20.);
   
 
   //create histograms for the second b quark (imc=9 & mc_momidx=6)
 
-  TH1F *h_ptb12  = new TH1F("h_ptb12" ," ; b_{12} p_{T} ; Events",100,0.,500.);
-  TH1F *h_etab12 = new TH1F("h_etab12"," ; b_{12} #eta  ; Events",100,-5.,-5.);
-  TH1F *h_phib12 = new TH1F("h_phib12"," ; b_{12} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
-  //TH1F *h_mb12 = new TH1F("h_mb12"  ," ; b_{12} mass  ; Events",100,2.,10.);
+  TH1F *h_ptb12  = new TH1F("h_ptb12" , " ; b_{12} p_{T} ; Events",100,0.,500.);
+  TH1F *h_etab12 = new TH1F("h_etab12", " ; b_{12} #eta  ; Events",100,-5.,-5.);
+  TH1F *h_phib12 = new TH1F("h_phib12", " ; b_{12} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_mb12   = new TH1F("h_mb12"  , " ; b_{12} mass  ; Events",100,0.,20.);
 
   //create histograms for the third b quark (imc=10 & mc_momidx=7)
   
-  TH1F *h_ptb21  = new TH1F("h_ptb21" ," ; b_{21} p_{T} ; Events",100,0.,500.);
-  TH1F *h_etab21 = new TH1F("h_etab21"," ; b_{21} #eta  ; Events",100,-5.,-5.);
-  TH1F *h_phib21 = new TH1F("h_phib21"," ; b_{21} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
-  //TH1F *h_mb21 = new TH1F("h_mb21"  ," ; b_{21} mass  ; Events",100,2.,10.);
+  TH1F *h_ptb21  = new TH1F("h_ptb21" , " ; b_{21} p_{T} ; Events",100,0.,500.);
+  TH1F *h_etab21 = new TH1F("h_etab21", " ; b_{21} #eta  ; Events",100,-5.,-5.);
+  TH1F *h_phib21 = new TH1F("h_phib21", " ; b_{21} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_mb21   = new TH1F("h_mb21"  , " ; b_{21} mass  ; Events",100,0.,20.);
 
   //create histograms for the fourth b quark (imc=11 & mc_momidx=7)
 
-  TH1F *h_ptb22  = new TH1F("h_ptb22" ," ; b_{22} p_{T} ; Events",100,0.,500.);
-  TH1F *h_etab22 = new TH1F("h_etab22"," ; b_{22} #eta  ; Events",100,-5.,-5.);
-  TH1F *h_phib22 = new TH1F("h_phib22"," ; b_{22} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
-  //TH1F *h_mb22 = new TH1F("h_mb22"  ," ; b_{22} mass  ; Events",100,2.,10.);
+  TH1F *h_ptb22  = new TH1F("h_ptb22" , " ; b_{22} p_{T} ; Events",100,0.,500.);
+  TH1F *h_etab22 = new TH1F("h_etab22", " ; b_{22} #eta  ; Events",100,-5.,-5.);
+  TH1F *h_phib22 = new TH1F("h_phib22", " ; b_{22} #phi  ; Events",100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_mb22   = new TH1F("h_mb22"  , " ; b_{22} mass  ; Events",100,0.,20.);
 
   //pT(2b)-m(2b) plane (truth)
   
@@ -278,77 +290,81 @@ void MyClass::Loop()
 
   //hadronic and leptonic system
   TH1F *h_pt_H   = new TH1F("h_pt_H" , " ; p_{T} bbbj [GeV]  ; Events"  , 50, 0., 600.);
-  TH1F *h_m_H    = new TH1F("h_m_H"  , " ; m_{bbbj} [GeV]     ; Events"  , 80, 0.,800.);
-  TH1F *h_phi_H = new TH1F("h_phi_H",  " ; #phi (4b) ; Events"  , 100, -TMath::Pi(), TMath::Pi());
-  TH1F *h_eta_H = new TH1F("h_eta_H",  " ; #eta (4b) ; Events"  , 100, -5., 5.);
+  TH1F *h_m_H    = new TH1F("h_m_H"  , " ; m_{bbbj} [GeV]     ; Events"  , 40, 0.,800.);
+  TH1F *h_phi_H = new TH1F("h_phi_H",  " ; #phi (4b) ; Events"  , 25, -TMath::Pi(), TMath::Pi());
+  TH1F *h_eta_H = new TH1F("h_eta_H",  " ; #eta (4b) ; Events"  , 25, -5., 5.);
   
-  TH1F *h_pt_Z  = new TH1F("h_pt_Z"  , " ; p_{T}(2l) [GeV]; Events"  , 100, 0., 600.);
-  TH1F *h_m_Z   = new TH1F("h_m_Z"   , " ; m(2l) [GeV]    ; Events"  , 100, 0., 300.);
-  TH1F *h_phi_Z = new TH1F("h_phi_Z" , " ; #phi (2l); Events"  , 100, -TMath::Pi(), TMath::Pi());
-  TH1F *h_eta_Z = new TH1F("h_eta_Z" , " ; #eta (2l); Events"  , 100, -5., 5.);
-  TH1F *h_mll_before_cut = new TH1F("h_mll_before_cut", " ; m_{Z} ; Events", 100, 0., 300.);
+  TH1F *h_pt_Z  = new TH1F("h_pt_Z"  , " ; p_{T}(2l) [GeV]; Events"  , 50, 0., 600.);
+  TH1F *h_m_Z   = new TH1F("h_m_Z"   , " ; m(2l) [GeV]    ; Events"  , 50, 0., 300.);
+  TH1F *h_phi_Z = new TH1F("h_phi_Z" , " ; #phi (2l); Events"  , 25, -TMath::Pi(), TMath::Pi());
+  TH1F *h_eta_Z = new TH1F("h_eta_Z" , " ; #eta (2l); Events"  , 25, -5., 5.);
+  TH1F *h_mll_before_cut = new TH1F("h_mll_before_cut", " ; m_{Z} ; Events", 50, 0., 300.);
   
-  TH1F *h_dPhi_ZH    = new TH1F("h_dPhi_ZH"    , " ; |#Delta#phi|(H,Z); Events", 100, 0., TMath::Pi());
+  TH1F *h_dPhi_ZH    = new TH1F("h_dPhi_ZH"    , " ; |#Delta#phi|(H,Z); Events", 25, 0., TMath::Pi());
   
   //scalar sum of pT of jets
-  TH1F *h_HT = new TH1F("h_HT" , " ; H_{T} [GeV]; Events", 100, 0., 600.);
+  TH1F *h_HT = new TH1F("h_HT" , " ; H_{T} [GeV]; Events", 33, 0., 600.);
   
-  //jet kinematics - 4 most energetic jets
-  TH1F *h_pt_jet1 = new TH1F("h_pt_jet1", " ;  b_{1}, p_{T} [GeV] ; Events", 100, 0., 400.);
+  //jet kinematics - 4 highest b tag discriminator jets
+  TH1F *h_pt_jet1  = new TH1F("h_pt_jet1",  " ;  b_{1}, p_{T} [GeV] ; Events", 100, 0., 400.);
   TH1F *h_eta_jet1 = new TH1F("h_eta_jet1", " ; b_{1}, #eta; Events", 100, -5., 5.);
   TH1F *h_phi_jet1 = new TH1F("h_phi_jet1", " ; b_{1}, #phi; Events", 100,-TMath::Pi(),TMath::Pi());
-
-  TH1F *h_pt_jet2 = new TH1F("h_pt_jet2", " ; b_{2}, p_{T} [GeV]; Events", 100, 0., 400.);
+  TH1F *h_m_jet1   = new TH1F("h_m_jet1",   " ; b_{1}, mass; Events", 100, 0., 20.);
+  
+  TH1F *h_pt_jet2  = new TH1F("h_pt_jet2",  " ; b_{2}, p_{T} [GeV]; Events", 100, 0., 400.);
   TH1F *h_eta_jet2 = new TH1F("h_eta_jet2", " ; b_{2}, #eta; Events", 100, -5., 5.);
   TH1F *h_phi_jet2 = new TH1F("h_phi_jet2", " ; b_{2}, #phi; Events", 100,-TMath::Pi(),TMath::Pi());
-
-  TH1F *h_pt_jet3 = new TH1F("h_pt_jet3", " ; b_{3}, p_{T} [GeV] ; Events", 100, 0., 400.);
+  TH1F *h_m_jet2   = new TH1F("h_m_jet2",   " ; b_{2}, mass; Events", 100, 0., 20.);
+  
+  TH1F *h_pt_jet3  = new TH1F("h_pt_jet3",  " ; b_{3}, p_{T} [GeV] ; Events", 100, 0., 400.);
   TH1F *h_eta_jet3 = new TH1F("h_eta_jet3", " ; b_{3}, #eta; Events", 100, -5., 5.);
   TH1F *h_phi_jet3 = new TH1F("h_phi_jet3", " ; b_{3}, #phi; Events", 100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_m_jet3   = new TH1F("h_m_jet3",   " ; b_{3}, mass; Events", 100, 0., 20.);
 
-  TH1F *h_pt_jet4 = new TH1F("h_pt_jet4", " ; b_{4}, p_{T} [GeV] ; Events", 100, 0., 400.);
+  TH1F *h_pt_jet4  = new TH1F("h_pt_jet4",  " ; b_{4}, p_{T} [GeV] ; Events", 100, 0., 400.);
   TH1F *h_eta_jet4 = new TH1F("h_eta_jet4", " ; b_{4}, #eta; Events", 100, -5., 5.);
   TH1F *h_phi_jet4 = new TH1F("h_phi_jet4", " ; b_{4}, #phi; Events", 100,-TMath::Pi(),TMath::Pi());
+  TH1F *h_m_jet4   = new TH1F("h_m_jet4",   " ; b_{4}, mass; Events", 100, 0., 20.);
 
-  TH1F *h_pt_b1 = new TH1F("h_pt_b1", " ;  b_{1}, p_{T} [GeV] ; Events", 100, 0., 400.);
+  TH1F *h_pt_b1 = new TH1F("h_pt_b1", " ;  b_{1}, p_{T} [GeV] ; Events", 50, 0., 400.);
 
   //2 most energetic leptons
-  TH1F *h_pt_lepton1 = new TH1F("h_pt_lepton1", " ; lepton 1, p_{T} [GeV] ; Events", 100, 0., 300.);
-  TH1F *h_pt_lepton2 = new TH1F("h_pt_lepton2", " ; lepton 2, p_{T} [GeV]; Events", 100, 0., 300.);
+  TH1F *h_pt_lepton1 = new TH1F("h_pt_lepton1", " ; lepton 1, p_{T} [GeV] ; Events", 50, 0., 300.);
+  TH1F *h_pt_lepton2 = new TH1F("h_pt_lepton2", " ; lepton 2, p_{T} [GeV]; Events", 50, 0., 300.);
 
   //minimum dR analysis
-  TH2F *h_pt2jets_m2jets_mindR = new TH2F("h_pt2jets_m2jets_mindR", " ; m(A_{1}) [GeV] ; p_{T}(A_{1}) [GeV]", 100, 0., 200., 100, 0., 600.);
-  TH2F *h_pt2jets_m2jets_other = new TH2F("h_pt2jets_m2jets_other", " ; m(A_{2}) [GeV] ; p_{T}(A_{2}) [GeV]", 100, 0., 200., 100, 0., 600.);
+  TH2F *h_pt2jets_m2jets_mindR = new TH2F("h_pt2jets_m2jets_mindR", " ; m(A_{1}) [GeV] ; p_{T}(A_{1}) [GeV]", 30, 0., 200., 50, 0., 600.);
+  TH2F *h_pt2jets_m2jets_other = new TH2F("h_pt2jets_m2jets_other", " ; m(A_{2}) [GeV] ; p_{T}(A_{2}) [GeV]", 30, 0., 200., 50, 0., 600.);
   
-  TH1F *h_dR_min = new TH1F("h_dR_min", " ; #DeltaR_{min} ; Events", 100, 0., 5.);
-  TH1F *h_dR_other = new TH1F("h_dR_other", " ; #DeltaR_{other} ; Events", 100, 0., 8.);
+  TH1F *h_dR_min = new TH1F("h_dR_min", " ; #DeltaR_{min} ; Events", 25, 0., 5.);
+  TH1F *h_dR_other = new TH1F("h_dR_other", " ; #DeltaR_{other} ; Events", 25, 0., 8.);
 
-  TH1F *h_pt_2jets_mindR = new TH1F("h_pt_2jets_mindR", " ; p_{T} (A_{1}) [GeV] ; Events", 100, 0., 600.);
-  TH1F *h_pt_2jets_other = new TH1F("h_pt_2jets_other", " ; p_{T} (A_{2}) [GeV] ; Events", 100, 0., 600.);
+  TH1F *h_pt_2jets_mindR = new TH1F("h_pt_2jets_mindR", " ; p_{T} (A_{1}) [GeV] ; Events", 50, 0., 600.);
+  TH1F *h_pt_2jets_other = new TH1F("h_pt_2jets_other", " ; p_{T} (A_{2}) [GeV] ; Events", 50, 0., 600.);
 
-  TH1F *h_m_2jets_mindR = new TH1F("h_m_2jets_mindR", " ; m(A_{1}) [GeV] ; Events", 60, 0., 200.);
-  TH1F *h_m_2jets_other = new TH1F("h_m_2jets_other", " ; m(A_{2}) [GeV] ; Events", 60, 0., 200.);
+  TH1F *h_m_2jets_mindR = new TH1F("h_m_2jets_mindR", " ; m(A_{1}) [GeV] ; Events", 30, 0., 200.);
+  TH1F *h_m_2jets_other = new TH1F("h_m_2jets_other", " ; m(A_{2}) [GeV] ; Events", 30, 0., 200.);
 
   //dR(ll)
-  TH1F *h_dR_ll = new TH1F("h_dR_ll", "; #DeltaR(ll) ; Events", 100, 0., 7.);
+  TH1F *h_dR_ll = new TH1F("h_dR_ll", "; #DeltaR(ll) ; Events", 50, 0., 7.);
 			   
-  //cos theta*
-  TH1F *h_beta_jet1 = new TH1F("h_beta_jet1", " ;#beta ; Events", 100, 0., 1.);
-  TH1F *h_cos_theta_star = new TH1F("h_cos_theta_star", " ; cos#theta* ; Events", 100, -1., 1.);
 
   //b tag discriminator histograms
-  TH1F *h_btag1 = new TH1F("h_btag1", " ; b - tag (1) ; Events", 100, 0., 1.);
-  TH1F *h_btag2 = new TH1F("h_btag2", " ; b - tag (2) ; Events", 100, 0., 1.);
-  TH1F *h_btag3 = new TH1F("h_btag3", " ; b - tag (3) ; Events", 100, 0., 1.);
-  TH1F *h_btag4 = new TH1F("h_btag4", " ; b - tag (4) ; Events", 100, 0., 1.);
+  TH1F *h_btag1 = new TH1F("h_btag1", " ; b - tag (1) ; Events", 50, 0., 1.);
+  TH1F *h_btag2 = new TH1F("h_btag2", " ; b - tag (2) ; Events", 50, 0., 1.);
+  TH1F *h_btag3 = new TH1F("h_btag3", " ; b - tag (3) ; Events", 50, 0., 1.);
+  TH1F *h_btag4 = new TH1F("h_btag4", " ; b - tag (4) ; Events", 50, 0., 1.);
 
   //mass variables
-  TH1F *h_dM_A1_A2 = new TH1F("h_dM_A1_A2", " ; m(A_{1}) - m(A_{2}) ; Events", 100, -400., 200.);
-  TH1F *h_m_reduced = new TH1F("h_m_reduced", "; m reduced ; Events", 100, -100., 600.);
+  TH1F *h_dM_A1_A2 = new TH1F("h_dM_A1_A2", " ; m(A_{1}) - m(A_{2}) ; Events", 50, -400., 200.);
+  TH1F *h_m_reduced = new TH1F("h_m_reduced", "; m reduced ; Events", 50, -100., 600.);
 
   //MET
-  TH1F *h_met_pt = new TH1F("h_met_pt", " ; missing E_{T} ; Events", 100, 0., 500.);
-  
+  TH1F *h_met_pt = new TH1F("h_met_pt", " ; missing E_{T} ; Events", 50, 0., 500.);
+
+  //deltaR best matced pair
+  TH1F *h_best_matched_b_dR = new TH1F("h_best_matched_b_dR", " ; #DeltaR ; Events", 50, 0., 0.8);
+  TH1F *h_deltaR_correct_pair = new TH1F("h_deltaR_correct_pair", " ; #DeltaR correcr pair ; Events", 50, 0., 5.);
   
   
   TTree t1("t1", "A Tree with variables for the MVA");
@@ -395,6 +411,7 @@ void MyClass::Loop()
 
   float L_int     = 43.5E3;
   float N_expected(0.);
+  
 
   //signal
   float sigma_signal = 0.8839*(3*0.0336)*0.75; //[pb]
@@ -416,6 +433,10 @@ void MyClass::Loop()
   float sigma_DY_1 = 1016; //[pb]
   float N_expected_DY_1 = sigma_DY_1*L_int;
 
+  //DY + 0 Jets
+  float sigma_DY_0 = 4895; //[pb]
+  float N_expected_DY_0 = sigma_DY_0*L_int;
+  
   //TT Dileptonic
   float sigma_TT_Dileptonic = 88.29; //[pb]
   float N_expected_TT_Dileptonic = sigma_TT_Dileptonic*L_int;
@@ -430,7 +451,7 @@ void MyClass::Loop()
     cout << "Number of expected events in signal:" << N_expected_signal << endl;
     weight = N_expected_signal/totalNumberofEvents;
     cout << "" << endl;
-    cout << "Signal (M20) weight: " << weight << endl;
+    cout << "Signal weight: " << weight << endl;
     N_expected = N_expected_signal;
 
   }
@@ -478,6 +499,16 @@ void MyClass::Loop()
     N_expected = N_expected_DY_1;
 
   }
+  
+  if(fname == "histos_DY_0.root"){
+
+    cout << "" << endl;
+    cout << "Number of expected events in DY + 0 jets bakground: " << N_expected_DY_0 << endl;
+    weight = N_expected_DY_0/totalNumberofEvents;
+    cout << "" << endl;
+    cout << "Drell Yan + 0 jets weight: " << weight << endl;
+    N_expected = N_expected_DY_0;
+  }
 
   if(fname == "histos_TT_Dileptonic.root"){
 
@@ -500,11 +531,13 @@ void MyClass::Loop()
     N_expected = N_expected_TT_Semileptonic;
     
   }
-  
+
   int count_step1(0);
   int count_step2(0);
   int count_step3(0);
   int count_step4(0);
+
+  int matched_bb_pairs(0);
  
   Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -672,7 +705,9 @@ void MyClass::Loop()
     
     //start the final state analysis
     if(vec_ll.size()>=2){
-      if(pb.size()>=3){ 
+      if(pb.size()>=3){
+	
+
 	
 	if(signal){
 
@@ -684,12 +719,12 @@ void MyClass::Loop()
 	  h_pt_l1->Fill(vec_ll[0].Pt(), weight);  h_eta_l1->Fill(vec_ll[0].Eta(), weight); h_phi_l1->Fill(vec_ll[0].Phi(), weight); 
 	  h_pt_l2->Fill(vec_ll[1].Pt(), weight);  h_eta_l2->Fill(vec_ll[1].Eta(), weight); h_phi_l2->Fill(vec_ll[1].Phi(), weight);
 	  //quarks:
-	  h_ptb11->Fill(vec_bb1[0].Pt(), weight); h_etab11->Fill(vec_bb1[0].Eta(), weight); h_phib11->Fill(vec_bb1[0].Phi(), weight);
-	  h_ptb12->Fill(vec_bb1[1].Pt(), weight); h_etab12->Fill(vec_bb1[1].Eta(), weight); h_phib12->Fill(vec_bb1[1].Phi(), weight);
-	  h_ptb21->Fill(vec_bb2[0].Pt(), weight); h_etab21->Fill(vec_bb2[0].Eta(), weight); h_phib21->Fill(vec_bb2[0].Phi(), weight);
-	  h_ptb22->Fill(vec_bb2[1].Pt(), weight); h_etab22->Fill(vec_bb2[1].Eta(), weight); h_phib22->Fill(vec_bb2[1].Phi(), weight);
+	  h_ptb11->Fill(vec_bb1[0].Pt(), weight); h_etab11->Fill(vec_bb1[0].Eta(), weight); h_phib11->Fill(vec_bb1[0].Phi(), weight); h_mb11->Fill(vec_bb1[0].M(), weight);
+	  h_ptb12->Fill(vec_bb1[1].Pt(), weight); h_etab12->Fill(vec_bb1[1].Eta(), weight); h_phib12->Fill(vec_bb1[1].Phi(), weight); h_mb12->Fill(vec_bb1[1].M(), weight);
+	  h_ptb21->Fill(vec_bb2[0].Pt(), weight); h_etab21->Fill(vec_bb2[0].Eta(), weight); h_phib21->Fill(vec_bb2[0].Phi(), weight); h_mb21->Fill(vec_bb2[0].M(), weight);
+	  h_ptb22->Fill(vec_bb2[1].Pt(), weight); h_etab22->Fill(vec_bb2[1].Eta(), weight); h_phib22->Fill(vec_bb2[1].Phi(), weight); h_mb22->Fill(vec_bb2[1].M(), weight);
 	  
-	}
+	}//end if signal
 									
     
 	// Define hadronic and leptonic system
@@ -754,7 +789,7 @@ void MyClass::Loop()
 	  h_pt_3_truth->Fill(ptB_truth[2], weight); 
 	  h_pt_4_truth->Fill(ptB_truth[3], weight);
 	  
-	}
+	}//end if signal
     
 
 	//sorting the lepton vector based on pT in descending order
@@ -808,16 +843,10 @@ void MyClass::Loop()
       
 	//calculating DeltaPhi(hadronic,leptonic) and pHad.M(), pLep.M()
 
-	// for (std::vector<TLorentzVector>::size_type i = 0; i < pb.size(); i++){
-	//   float phi_b_i = pb[i].Phi();
-	//   if(phi_b_i<0) phi_b_i += 2.*TMath::Pi();
-	// }
-	  
-
 	float phi_H_G = pHad.Phi(); h_phi_H_G->Fill(phi_H_G);
 	float phi_Z_G = pLep.Phi(); h_phi_Z_G->Fill(phi_Z_G);
 	float dPhi_ZH_G = fabs(pHad.Phi()-pLep.Phi());
-	if(dPhi_ZH_G >  TMath::Pi()) dPhi_ZH_G = 2*TMath::Pi() - dPhi_ZH_G;
+	if(dPhi_ZH_G >  M_PI) dPhi_ZH_G = 2*M_PI - dPhi_ZH_G;
 	h_dPhi_ZH_G-> Fill(dPhi_ZH_G, weight);
 	
 	float m_H_G  = pHad.M();  h_m_H_G->Fill(m_H_G, weight);
@@ -889,7 +918,7 @@ void MyClass::Loop()
 	    
 	  }
 	}
-     
+
 
 	//MIN DR histograms
     
@@ -897,13 +926,7 @@ void MyClass::Loop()
 	float pT_2b_min_dR_vector = (b1_min + b2_min).Pt();
 
 	float deta_min_G = fabs(b1_min.Eta() - b2_min.Eta());
-
-	float phi_b1_min=b1_min.Phi();
-	//if (phi_b1_min<0) phi_b1_min += 2.*TMath::Pi();
-	float phi_b2_min=b2_min.Phi();
-	//if (phi_b2_min<0) phi_b2_min += 2.*TMath::Pi();
-	
-	float dphi_min_G = fabs(phi_b1_min - phi_b2_min);
+	float dphi_min_G = fabs(b1_min.Phi() - b2_min.Phi());
 	float dR_min_G   = sqrt(deta_min_G * deta_min_G + dphi_min_G * dphi_min_G);
 	
 	
@@ -939,16 +962,11 @@ void MyClass::Loop()
 	  
 	  //correlations
 	  h_m1_m2->Fill(m_2b_min_dR, m_2b_other, weight);
-	  
 	  h_pT1_pT2_vector->Fill(pT_2b_min_dR_vector, pT_2b_other_vector, weight);
 	  
-	  float phi_b1_other = b1_other.Phi();
-	  //if(phi_b1_other<0) phi_b1_other += 2.*TMath::Pi();
-	  float phi_b2_other = b2_other.Phi();
-	  //if(phi_b2_other<0) phi_b2_other += 2.*TMath::Pi();
 	  
 	  float deta_other_G = fabs(b1_other.Eta() - b2_other.Eta());
-	  float dphi_other_G = fabs(phi_b1_other - phi_b2_other);
+	  float dphi_other_G = fabs(b1_other.Phi() - b2_other.Phi());
 	  float dR_other_G   = sqrt(deta_other_G * deta_other_G + dphi_other_G * dphi_other_G);
 	  
 	  h_dRmin_dRother -> Fill(dR_min_G, dR_other_G, weight);
@@ -969,12 +987,11 @@ void MyClass::Loop()
 	  
  
 	} // end if 2nd pair exists
-      
-     
-      }//end q/g requirement
-      
-    }//end lepton requirement
 
+      } //end q/g requirement
+      
+    } //end lepton requirement
+     
 
     //START DETECTOR LEVEL ANALYSIS
     
@@ -1131,10 +1148,10 @@ void MyClass::Loop()
 
     
     //filling histograms with pT of the highest b tagged jets
-    h_pt_jet1->Fill(vec_jet[0].Pt(), weight); h_phi_jet1->Fill(vec_jet[0].Phi(), weight); h_eta_jet1->Fill(vec_jet[0].Eta(), weight);
-    h_pt_jet2->Fill(vec_jet[1].Pt(), weight); h_phi_jet2->Fill(vec_jet[1].Phi(), weight); h_eta_jet2->Fill(vec_jet[1].Eta(), weight);
-    h_pt_jet3->Fill(vec_jet[2].Pt(), weight); h_phi_jet3->Fill(vec_jet[2].Phi(), weight); h_eta_jet3->Fill(vec_jet[2].Eta(), weight);
-    h_pt_jet4->Fill(vec_jet[3].Pt(), weight); h_phi_jet4->Fill(vec_jet[3].Phi(), weight); h_eta_jet4->Fill(vec_jet[3].Eta(), weight);
+    h_pt_jet1->Fill(vec_jet[0].Pt(), weight); h_phi_jet1->Fill(vec_jet[0].Phi(), weight); h_eta_jet1->Fill(vec_jet[0].Eta(), weight); h_m_jet1->Fill(vec_jet[0].M(), weight);
+    h_pt_jet2->Fill(vec_jet[1].Pt(), weight); h_phi_jet2->Fill(vec_jet[1].Phi(), weight); h_eta_jet2->Fill(vec_jet[1].Eta(), weight); h_m_jet2->Fill(vec_jet[1].M(), weight);
+    h_pt_jet3->Fill(vec_jet[2].Pt(), weight); h_phi_jet3->Fill(vec_jet[2].Phi(), weight); h_eta_jet3->Fill(vec_jet[2].Eta(), weight); h_m_jet3->Fill(vec_jet[2].M(), weight);
+    h_pt_jet4->Fill(vec_jet[3].Pt(), weight); h_phi_jet4->Fill(vec_jet[3].Phi(), weight); h_eta_jet4->Fill(vec_jet[3].Eta(), weight); h_m_jet4->Fill(vec_jet[3].M(), weight);
 
     //filling histograms with pT of the 2 most energetic leptons
     h_pt_lepton1->Fill(vec_leptons[0].Pt(), weight);
@@ -1249,11 +1266,6 @@ void MyClass::Loop()
     }
 
     //minimum dR histograms
-
-    //float phi_jet1_min = jet1_min.Phi();
-    //if(phi_jet1_min<0) phi_jet1_min += 2.*TMath::Pi();
-    //float phi_jet2_min = jet2_min.Phi();
-    //if(phi_jet2_min<0) phi_jet2_min += 2.*TMath::Pi();
     
     float deta_min = fabs(jet1_min.Eta() - jet2_min.Eta());
     float dphi_min = fabs(jet1_min.Phi() - jet2_min.Phi());
@@ -1368,6 +1380,86 @@ void MyClass::Loop()
     h_met_pt->Fill(met_pt,weight);
     met_pt_ = met_pt;
 
+    // truth matched bb pairs
+
+    if(signal){
+      //bool match(false);
+      //loop over vec_bb1 first 
+     
+      for (std::vector<TLorentzVector>::size_type i = 0; i < vec_bb1.size(); i++) {
+    
+	  float deltaR1_bb1 = getDeltaR(jet1_min, vec_bb1[i]);
+	  float deltaR2_bb1 = getDeltaR(jet2_min, vec_bb1[i]);
+
+	  if (deltaR1_bb1 < 0.4 && deltaR2_bb1 < 0.4) {
+            match = true;
+	  }
+	  
+      } // end bb1 loop
+
+
+      //if no match is found, we check vec_bb2
+
+      if(!match){
+	
+	for (std::vector<TLorentzVector>::size_type i = 0; i < vec_bb2.size(); i++) {
+	  
+	  float deltaR1_bb2 = getDeltaR(jet1_min, vec_bb2[i]);
+	  float deltaR2_bb2 = getDeltaR(jet2_min, vec_bb2[i]);
+
+	  if (deltaR1_bb2 < 0.4 && deltaR2_bb2 < 0.4) {
+	    match = true;
+	  }
+	  
+	} // end bb2 loop
+	
+      } // end if(!match)
+      
+      //if any match is found increment matched_bb_pairs
+
+      if(match){
+	matched_bb_pairs++;
+	float deltaR_correct_pair = getDeltaR(jet1_min, jet2_min);
+	h_deltaR_correct_pair->Fill(deltaR_correct_pair, weight);
+
+      }
+
+      
+      float min_deltaR_temp = 999;
+      TLorentzVector best_matched_jet;
+      TLorentzVector best_matched_b;
+
+      for(std::vector<TLorentzVector>::size_type i=0; i < vec_bb1.size() ; i++){
+	for(std::vector<TLorentzVector>::size_type j = 0; j < vec_bb2.size(); j++){
+	  float deltaR1_bb1 = getDeltaR(jet1_min, vec_bb1[i]);
+	  float deltaR2_bb1 = getDeltaR(jet2_min, vec_bb1[i]);
+	  float deltaR1_bb2 = getDeltaR(jet1_min, vec_bb2[j]);
+	  float deltaR2_bb2 = getDeltaR(jet2_min, vec_bb2[j]);
+
+	  float min_deltaR = std::min({deltaR1_bb1, deltaR1_bb2, deltaR2_bb1, deltaR2_bb2});
+	  
+	  if(min_deltaR < min_deltaR_temp){
+	    min_deltaR_temp = min_deltaR;
+	    best_matched_jet = jet1_min;
+	    if (min_deltaR == deltaR1_bb1) {
+	      best_matched_b = vec_bb1[i];
+	    } else if(min_deltaR == deltaR1_bb2) {
+	      best_matched_b = vec_bb2[j];
+	    }
+
+	    h_best_matched_b_dR -> Fill(min_deltaR, weight);
+	  }
+
+	} // end bb2 loop
+
+      } // end bb1 loop
+
+      
+    } // end if(signal)
+
+
+    
+
 
     t1.Fill();
     
@@ -1397,105 +1489,111 @@ void MyClass::Loop()
    cout << "N expected (final): " << float(N_expected)*(int(count_step4)/float(totalNumberofEvents)) << endl;
    cout << "" << endl;
 
-   
+   // fraction of truth-matched bb pairs
+
+   double fraction_matched = static_cast<double>(matched_bb_pairs)/count_step4;
+   cout << "fraction of correct truth - matched bb pairs:" << (fraction_matched)*100 << "%" << endl;
 
    t1.Write();
    
-     // TFile f1("histos.root","RECREATE");
-    h_ptH->Write();   h_etaH->Write();   h_phiH->Write();   h_mH->Write();
-    h_ptZ->Write();   h_etaZ->Write();   h_phiZ->Write();   h_mZ->Write();
-    h_ptA1->Write();  h_etaA1->Write();  h_phiA1->Write();  h_mA1->Write();
-    h_ptA2->Write();  h_etaA2->Write();  h_phiA2->Write();  h_mA2->Write();
-    h_ptb11->Write(); h_etab11->Write(); h_phib11->Write(); // h_mb11->Write();
-    h_ptb12->Write(); h_etab12->Write(); h_phib12->Write(); // h_mb12->Write();
-    h_ptb21->Write(); h_etab21->Write(); h_phib21->Write(); //h_mb21->Write();
-    h_ptb22->Write(); h_etab22->Write(); h_phib22->Write(); //h_mb22->Write();
-    h_pt_l1->Write(); h_eta_l1->Write(); h_phi_l1->Write(); //h_m_l1->Write();
-    h_pt_l2->Write(); h_eta_l2->Write(); h_phi_l2->Write(); //h_m_l2->Write();
-    h_dR1->Write();   h_dR2->Write();    h_dRA->Write();   
-    h_maxptB_truth->Write();h_minptB_truth->Write();
+   // TFile f1("histos.root","RECREATE"); 
+   h_ptH->Write();   h_etaH->Write();   h_phiH->Write();   h_mH->Write();
+   h_ptZ->Write();   h_etaZ->Write();   h_phiZ->Write();   h_mZ->Write();
+   h_ptA1->Write();  h_etaA1->Write();  h_phiA1->Write();  h_mA1->Write();
+   h_ptA2->Write();  h_etaA2->Write();  h_phiA2->Write();  h_mA2->Write();
+   h_ptb11->Write(); h_etab11->Write(); h_phib11->Write(); h_mb11->Write();
+   h_ptb12->Write(); h_etab12->Write(); h_phib12->Write(); h_mb12->Write();
+   h_ptb21->Write(); h_etab21->Write(); h_phib21->Write(); h_mb21->Write();
+   h_ptb22->Write(); h_etab22->Write(); h_phib22->Write(); h_mb22->Write();
+   h_pt_l1->Write(); h_eta_l1->Write(); h_phi_l1->Write(); //h_m_l1->Write();
+   h_pt_l2->Write(); h_eta_l2->Write(); h_phi_l2->Write(); //h_m_l2->Write();
+   h_dR1->Write();   h_dR2->Write();    h_dRA->Write();   
+   h_maxptB_truth->Write();h_minptB_truth->Write();
+   
+   h_HT_G->Write();h_ptb_v_sum->Write();
+   h_dPhi_ZH_G->Write();
+   h_dM_min->Write(); h_dM_max->Write(); h_pt_Z_G->Write();
+   h_m_H_G->Write();  h_m_Z_G->Write();
+   h_pt_1_truth->Write(); h_pt_2_truth->Write(); h_pt_3_truth->Write(); h_pt_4_truth->Write();
+   h_pt_1_global->Write(); h_pt_2_global->Write(); h_pt_3_global->Write(); h_pt_4_global->Write();
+   h_pt_leadL->Write(); h_pt_subleadL->Write(); h_dR_ll_G->Write();
     
-    h_HT_G->Write();h_ptb_v_sum->Write();
-    h_dPhi_ZH_G->Write();
-    h_dM_min->Write(); h_dM_max->Write(); h_pt_Z_G->Write();
-    h_m_H_G->Write();  h_m_Z_G->Write();
-    h_pt_1_truth->Write(); h_pt_2_truth->Write(); h_pt_3_truth->Write(); h_pt_4_truth->Write();
-    h_pt_1_global->Write(); h_pt_2_global->Write(); h_pt_3_global->Write(); h_pt_4_global->Write();
-    h_pt_leadL->Write(); h_pt_subleadL->Write(); h_dR_ll_G->Write();
-
-    //pT(2b)-m(2b) plane
-    h_pt2b_m2b_truth_vector->Write();
-    h_pt2b_m2b_truth_vector_other->Write();
-    h_pt2b_truth_vector->Write();
-    h_pt2b_truth_vector_other->Write();
+   //pT(2b)-m(2b) plane
+   h_pt2b_m2b_truth_vector->Write();
+   h_pt2b_m2b_truth_vector_other->Write();
+   h_pt2b_truth_vector->Write();
+   h_pt2b_truth_vector_other->Write();
+   
+   //min dR analysis
+   
+   h_pt2b_m2b_mindR_vector->Write();
+   h_pt2b_m2b_other_vector->Write();
+   h_m1_m2->Write();
+   h_pT1_pT2_vector->Write();
+   h_dRmin_dRother->Write();
+   h_dR_min_G->Write();
+   h_dR_other_G->Write();
+   h_m2b_mindR->Write(); h_m2b_other->Write();
+   h_pT_min_vector->Write();
+   h_pT_other_vector->Write();
+   
+   
+   h_nb->Write();
+   h_phi_H_G->Write();
+   h_phi_Z_G->Write();
+   
+   h_dM_A1_A2_gen_level->Write();
+   h_m_reduced_gen_level->Write();
+   
+   //detector level
+   h_n_jets->Write(); h_n_bjets->Write(); h_n_jets_after_cuts->Write(); h_n_bjets_after_cuts->Write();
+   h_btag_discriminator->Write();
+   h_pt_H->Write(); h_m_H->Write(); h_phi_H->Write(); h_eta_H->Write();
+   h_pt_Z->Write(); h_m_Z->Write(); h_phi_Z->Write(); h_eta_Z->Write();
+   h_dPhi_ZH->Write();
+   
+   h_HT->Write();
+   h_pt_jet1->Write(); h_eta_jet1->Write(); h_phi_jet1->Write(); h_m_jet1->Write();
+   h_pt_jet2->Write(); h_eta_jet2->Write(); h_phi_jet2->Write(); h_m_jet2->Write();
+   h_pt_jet3->Write(); h_eta_jet3->Write(); h_phi_jet3->Write(); h_m_jet3->Write();
+   h_pt_jet4->Write(); h_eta_jet4->Write(); h_phi_jet4->Write(); h_m_jet4->Write();
+   
+   
+   h_pt_lepton1->Write();
+   h_pt_lepton2->Write();
     
-    //min dR analysis
-    
-    h_pt2b_m2b_mindR_vector->Write();
-    h_pt2b_m2b_other_vector->Write();
-    h_m1_m2->Write();
-    h_pT1_pT2_vector->Write();
-    h_dRmin_dRother->Write();
-    h_dR_min_G->Write();
-    h_dR_other_G->Write();
-    h_m2b_mindR->Write(); h_m2b_other->Write();
-    h_pT_min_vector->Write();
-    h_pT_other_vector->Write();
-    
-
-    h_nb->Write();
-    h_phi_H_G->Write();
-    h_phi_Z_G->Write();
-
-    h_dM_A1_A2_gen_level->Write();
-    h_m_reduced_gen_level->Write();
-
-    //detector level
-    h_n_jets->Write(); h_n_bjets->Write(); h_n_jets_after_cuts->Write(); h_n_bjets_after_cuts->Write();
-    h_btag_discriminator->Write();
-    h_pt_H->Write(); h_m_H->Write(); h_phi_H->Write(); h_eta_H->Write();
-    h_pt_Z->Write(); h_m_Z->Write(); h_phi_Z->Write(); h_eta_Z->Write();
-    h_dPhi_ZH->Write();
-    
-    h_HT->Write();
-    h_pt_jet1->Write(); h_eta_jet1->Write(); h_phi_jet1->Write();
-    h_pt_jet2->Write(); h_eta_jet2->Write(); h_phi_jet2->Write();
-    h_pt_jet3->Write(); h_eta_jet3->Write(); h_phi_jet3->Write();
-    h_pt_jet4->Write(); h_eta_jet4->Write(); h_phi_jet4->Write();
+   h_pt2jets_m2jets_mindR->Write();
+   h_pt2jets_m2jets_other->Write();
+   
+   h_dR_min->Write();
+   h_dR_other->Write();
+   
+   h_pt_2jets_mindR->Write();
+   h_pt_2jets_other->Write();
+   
+   h_m_2jets_mindR->Write();
+   h_m_2jets_other->Write();
 
 
-    h_pt_lepton1->Write();
-    h_pt_lepton2->Write();
-    
-    h_pt2jets_m2jets_mindR->Write();
-    h_pt2jets_m2jets_other->Write();
-    
-    h_dR_min->Write();
-    h_dR_other->Write();
-    
-    h_pt_2jets_mindR->Write();
-    h_pt_2jets_other->Write();
+   h_dR_ll->Write();
+   
+   h_btag1->Write(); h_btag2->Write(); h_btag3->Write(); h_btag4->Write();
 
-    h_m_2jets_mindR->Write();
-    h_m_2jets_other->Write();
+   h_dM_A1_A2->Write();
+   h_m_reduced->Write();
 
-    h_cos_theta_star->Write();
-    h_beta_jet1->Write();
-    h_dR_ll->Write();
+   h_pt_b1->Write();
 
-    h_btag1->Write(); h_btag2->Write(); h_btag3->Write(); h_btag4->Write();
+   h_mll_before_cut->Write();
 
-    h_dM_A1_A2->Write();
-    h_m_reduced->Write();
+   h_met_pt->Write();
 
-    h_pt_b1->Write();
+   h_best_matched_b_dR->Write();
+   h_deltaR_correct_pair->Write();
 
-    h_mll_before_cut->Write();
-
-    h_met_pt->Write();
-    
     fout.Close();
-  
+
+    
    
 }//end loop method
 
