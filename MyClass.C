@@ -37,7 +37,18 @@ bool sortBtag(const JetAndBtag &jet_i, const JetAndBtag &jet_j){
   return jet_i.btag > jet_j.btag;
 }
 
- 
+
+bool jet_matched(TLorentzVector jet, std::vector<TLorentzVector> vec_bb){
+  bool match = false;
+  float dRmin = 999;
+  float dR = 0;
+  for (int i = 0; i < vec_bb.size(); i++){
+    dR = getDeltaR(jet, vec_bb[i]);
+    if(dR < dRmin) dRmin = dR;
+  }
+  if(dRmin < 0.4) match = true;
+  return match;
+}
 
 
 void MyClass::Loop()
@@ -69,7 +80,7 @@ void MyClass::Loop()
   if (fChain == 0) return;
   bool verbose(false);
   bool signal(false);
-  bool match(false);
+  //  bool match(false);
   
   TString filename=std::string(f->GetName());
   cout << "input file name: " << filename << endl;
@@ -337,7 +348,7 @@ void MyClass::Loop()
   TH2F *h_pt2jets_m2jets_other = new TH2F("h_pt2jets_m2jets_other", " ; m(A_{2}) [GeV] ; p_{T}(A_{2}) [GeV]", 30, 0., 200., 50, 0., 600.);
   
   TH1F *h_dR_min = new TH1F("h_dR_min", " ; #DeltaR_{min} ; Events", 25, 0., 5.);
-  TH1F *h_dR_other = new TH1F("h_dR_other", " ; #DeltaR_{other} ; Events", 25, 0., 8.);
+  TH1F *h_dR_other = new TH1F("h_dR_other", " ; #DeltaR_{other} ; Events", 25, 0., 5.);
 
   TH1F *h_pt_2jets_mindR = new TH1F("h_pt_2jets_mindR", " ; p_{T} (A_{1}) [GeV] ; Events", 50, 0., 600.);
   TH1F *h_pt_2jets_other = new TH1F("h_pt_2jets_other", " ; p_{T} (A_{2}) [GeV] ; Events", 50, 0., 600.);
@@ -364,7 +375,7 @@ void MyClass::Loop()
 
   //deltaR best matced pair
   TH1F *h_best_matched_b_dR = new TH1F("h_best_matched_b_dR", " ; #DeltaR ; Events", 50, 0., 0.8);
-  TH1F *h_deltaR_correct_pair = new TH1F("h_deltaR_correct_pair", " ; #DeltaR correcr pair ; Events", 50, 0., 5.);
+  TH1F *h_deltaR_correct_pair = new TH1F("h_deltaR_correct_pair", " ; #DeltaR ; Events", 25, 0., 5.);
   
   
   TTree t1("t1", "A Tree with variables for the MVA");
@@ -1383,77 +1394,39 @@ void MyClass::Loop()
     // truth matched bb pairs
 
     if(signal){
-      //bool match(false);
-      //loop over vec_bb1 first 
-     
-      for (std::vector<TLorentzVector>::size_type i = 0; i < vec_bb1.size(); i++) {
-    
-	  float deltaR1_bb1 = getDeltaR(jet1_min, vec_bb1[i]);
-	  float deltaR2_bb1 = getDeltaR(jet2_min, vec_bb1[i]);
-
-	  if (deltaR1_bb1 < 0.4 && deltaR2_bb1 < 0.4) {
-            match = true;
-	  }
-	  
-      } // end bb1 loop
-
-
-      //if no match is found, we check vec_bb2
-
-      if(!match){
-	
-	for (std::vector<TLorentzVector>::size_type i = 0; i < vec_bb2.size(); i++) {
-	  
-	  float deltaR1_bb2 = getDeltaR(jet1_min, vec_bb2[i]);
-	  float deltaR2_bb2 = getDeltaR(jet2_min, vec_bb2[i]);
-
-	  if (deltaR1_bb2 < 0.4 && deltaR2_bb2 < 0.4) {
-	    match = true;
-	  }
-	  
-	} // end bb2 loop
-	
-      } // end if(!match)
       
-      //if any match is found increment matched_bb_pairs
+      bool match_jet1_bb1 = jet_matched(jet1_min, vec_bb1);
+      bool match_jet2_bb1 = jet_matched(jet2_min, vec_bb1);
+      bool match_jet1_bb2 = jet_matched(jet1_min, vec_bb2);
+      bool match_jet2_bb2 = jet_matched(jet2_min, vec_bb2);
 
-      if(match){
+      if((match_jet1_bb1 && match_jet2_bb1) || (match_jet1_bb2 && match_jet2_bb2)){
 	matched_bb_pairs++;
 	float deltaR_correct_pair = getDeltaR(jet1_min, jet2_min);
-	h_deltaR_correct_pair->Fill(deltaR_correct_pair, weight);
+	h_deltaR_correct_pair -> Fill(deltaR_correct_pair, weight);
+      }
+      
+      
+      TLorentzVector best_matched_b_jet1_min;
+      float min_deltaR = 999;
 
+      for (size_t i = 0; i < vec_bb1.size(); i++) {
+	float deltaR_jet1_b = getDeltaR(jet1_min, vec_bb1[i]);
+	if (deltaR_jet1_b < min_deltaR) {
+	  min_deltaR = deltaR_jet1_b;
+	  best_matched_b_jet1_min = vec_bb1[i];
+	}
+      }
+      
+      for (size_t i = 0; i < vec_bb2.size(); i++) {
+	float deltaR_jet1_b = getDeltaR(jet1_min, vec_bb2[i]);
+	if (deltaR_jet1_b < min_deltaR) {
+	  min_deltaR = deltaR_jet1_b;
+	  best_matched_b_jet1_min = vec_bb2[i];
+	}
       }
 
-      
-      float min_deltaR_temp = 999;
-      TLorentzVector best_matched_jet;
-      TLorentzVector best_matched_b;
-
-      for(std::vector<TLorentzVector>::size_type i=0; i < vec_bb1.size() ; i++){
-	for(std::vector<TLorentzVector>::size_type j = 0; j < vec_bb2.size(); j++){
-	  float deltaR1_bb1 = getDeltaR(jet1_min, vec_bb1[i]);
-	  float deltaR2_bb1 = getDeltaR(jet2_min, vec_bb1[i]);
-	  float deltaR1_bb2 = getDeltaR(jet1_min, vec_bb2[j]);
-	  float deltaR2_bb2 = getDeltaR(jet2_min, vec_bb2[j]);
-
-	  float min_deltaR = std::min({deltaR1_bb1, deltaR1_bb2, deltaR2_bb1, deltaR2_bb2});
-	  
-	  if(min_deltaR < min_deltaR_temp){
-	    min_deltaR_temp = min_deltaR;
-	    best_matched_jet = jet1_min;
-	    if (min_deltaR == deltaR1_bb1) {
-	      best_matched_b = vec_bb1[i];
-	    } else if(min_deltaR == deltaR1_bb2) {
-	      best_matched_b = vec_bb2[j];
-	    }
-
-	    h_best_matched_b_dR -> Fill(min_deltaR, weight);
-	  }
-
-	} // end bb2 loop
-
-      } // end bb1 loop
-
+      h_best_matched_b_dR->Fill(min_deltaR, weight);
       
     } // end if(signal)
 
