@@ -381,7 +381,7 @@ void MyClass::Loop()
   TH1F *h_best_matched_b_dR = new TH1F("h_best_matched_b_dR", " ; #DeltaR ; Events", 50, 0., 2.);
   TH1F *h_deltaR_correct_pair = new TH1F("h_deltaR_correct_pair", " ; #DeltaR ; Events", 50, 0., 5.);
 
-  TH2F *h_ptjet_pt2b = new TH2F("h_ptjet_pt2b_bb1", " ; p_{T} jet [GeV] ; p_{T} (2b), truth [GeV]", 50, 0., 300., 50., 0., 300.);
+  TH2F *h_ptjet_pt2b = new TH2F("h_ptjet_pt2b", " ; p_{T} jet [GeV] ; p_{T} (2b), truth [GeV]", 50, 0., 300., 50., 0., 300.);
 
   
   
