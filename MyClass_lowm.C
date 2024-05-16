@@ -52,9 +52,9 @@ bool jet_matched(TLorentzVector jet, std::vector<TLorentzVector> vec_bb){
 
 bool jet_matched_lowm(TLorentzVector jet, std::vector<TLorentzVector> vec_bb){
   bool match_lowm = false;
-  for (int i = 0; i < vec_bb.size(); i++){
-  float dR1 = getDeltaR(jet, vec_bb1[0]);
-  float dR2 = getDeltaR(jet, vec_bb1[1]);
+
+  float dR1 = getDeltaR(jet, vec_bb[0]);
+  float dR2 = getDeltaR(jet, vec_bb[1]);
 
   if(dR1 < 0.4 && dR2 < 0.4) match_lowm = true;
   return match_lowm;
@@ -381,7 +381,7 @@ void MyClass::Loop()
   TH1F *h_best_matched_b_dR = new TH1F("h_best_matched_b_dR", " ; #DeltaR ; Events", 50, 0., 2.);
   TH1F *h_deltaR_correct_pair = new TH1F("h_deltaR_correct_pair", " ; #DeltaR ; Events", 50, 0., 5.);
 
-  TH2F *h_ptjet_pt2b_bb1 = new TH2F("h_ptjet_pt2b_bb1", " ; p_{T} jet [GeV] ; p_{T} (2b), truth [GeV]", 50, 0., 300., 50., 0., 300.);
+  TH2F *h_ptjet_pt2b = new TH2F("h_ptjet_pt2b_bb1", " ; p_{T} jet [GeV] ; p_{T} (2b), truth [GeV]", 50, 0., 300., 50., 0., 300.);
 
   
   
@@ -1277,82 +1277,82 @@ void MyClass::Loop()
 
     //minimum dR histograms
     
-    float deta_min = fabs(jet1_min.Eta() - jet2_min.Eta());
-    float dphi_min = fabs(jet1_min.Phi() - jet2_min.Phi());
-    dR_min = sqrt(deta_min*deta_min + dphi_min*dphi_min);
+    // float deta_min = fabs(jet1_min.Eta() - jet2_min.Eta());
+    // float dphi_min = fabs(jet1_min.Phi() - jet2_min.Phi());
+    // dR_min = sqrt(deta_min*deta_min + dphi_min*dphi_min);
     
     
-    float m_2jets_mindR = (jet1_min + jet2_min).M();
-    pt_2b = (jet1_min + jet2_min).Pt(); //pt_2jets_mindR
+    // float m_2jets_mindR = (jet1_min + jet2_min).M();
+    // pt_2b = (jet1_min + jet2_min).Pt(); //pt_2jets_mindR
     
-    h_pt2jets_m2jets_mindR -> Fill(m_2jets_mindR, pt_2b, weight); 
+    // h_pt2jets_m2jets_mindR -> Fill(m_2jets_mindR, pt_2b, weight); 
 
-    //1D histograms for "min dR"
-    h_dR_min->Fill(dR_min, weight);
-    h_pt_2jets_mindR->Fill(pt_2b, weight); 
-    h_m_2jets_mindR->Fill(m_2jets_mindR, weight); 
+    // //1D histograms for "min dR"
+    // h_dR_min->Fill(dR_min, weight);
+    // h_pt_2jets_mindR->Fill(pt_2b, weight); 
+    // h_m_2jets_mindR->Fill(m_2jets_mindR, weight); 
 
-    vector <TLorentzVector> jet_other;
+    // vector <TLorentzVector> jet_other;
 
-    for(std::vector<TLorentzVector>::size_type i=0; i < vec_jet.size(); i++){
+    // for(std::vector<TLorentzVector>::size_type i=0; i < vec_jet.size(); i++){
      
-      TLorentzVector jet = vec_jet[i];
+    //   TLorentzVector jet = vec_jet[i];
 
-      if(jet!=jet1_min && jet!=jet2_min){
-	jet_other.push_back(vec_jet[i]);
-      }
-    }
+    //   if(jet!=jet1_min && jet!=jet2_min){
+    // 	jet_other.push_back(vec_jet[i]);
+    //   }
+    // }
 
-    m_reduced = -999;
-    dM_A1_A2 = -999;
+    // m_reduced = -999;
+    // dM_A1_A2 = -999;
 
-    if(jet_other.size()>=2) { //if there is a 2nd pair of jets
+    // if(jet_other.size()>=2) { //if there is a 2nd pair of jets
             
-      TLorentzVector jet1_other = jet_other[0];
-      TLorentzVector jet2_other = jet_other[1];
+    //   TLorentzVector jet1_other = jet_other[0];
+    //   TLorentzVector jet2_other = jet_other[1];
 
-      //Other
-      float m_2jets_other = (jet1_other + jet2_other).M();
-      float pt_2jets_other = (jet1_other + jet2_other).Pt();
+    //   //Other
+    //   float m_2jets_other = (jet1_other + jet2_other).M();
+    //   float pt_2jets_other = (jet1_other + jet2_other).Pt();
 
-      h_pt2jets_m2jets_other -> Fill(m_2jets_other, pt_2jets_other, weight); 
+    //   h_pt2jets_m2jets_other -> Fill(m_2jets_other, pt_2jets_other, weight); 
 
-      //correlations
-      //float phi_jet1_other = jet1_other.Phi();
-      //if(phi_jet1_other<0) phi_jet1_other += 2.*TMath::Pi();
-      //float phi_jet2_other = jet2_other.Phi();
-      //if(phi_jet2_other<0) phi_jet2_other += 2.*TMath::Pi();
+    //   //correlations
+    //   //float phi_jet1_other = jet1_other.Phi();
+    //   //if(phi_jet1_other<0) phi_jet1_other += 2.*TMath::Pi();
+    //   //float phi_jet2_other = jet2_other.Phi();
+    //   //if(phi_jet2_other<0) phi_jet2_other += 2.*TMath::Pi();
       
-      float deta_other = fabs(jet1_other.Eta() - jet2_other.Eta());
-      float dphi_other = fabs(jet1_other.Phi() - jet2_other.Phi());
-      float dR_other   = sqrt(deta_other*deta_other + dphi_other*dphi_other);
+    //   float deta_other = fabs(jet1_other.Eta() - jet2_other.Eta());
+    //   float dphi_other = fabs(jet1_other.Phi() - jet2_other.Phi());
+    //   float dR_other   = sqrt(deta_other*deta_other + dphi_other*dphi_other);
 
 
-      //h_m1_m2_jets->Fill(m_2jets_mindR, m_2jets_other, weight); 
-      //h_pt1_pt2_jets->Fill(pt_2b, pt_2jets_other, weight); 
-      //h_dRmin_dRother_jet->Fill(dR_min, dR_other, weight);
+    //   //h_m1_m2_jets->Fill(m_2jets_mindR, m_2jets_other, weight); 
+    //   //h_pt1_pt2_jets->Fill(pt_2b, pt_2jets_other, weight); 
+    //   //h_dRmin_dRother_jet->Fill(dR_min, dR_other, weight);
 
-      //some 1D "other" histograms
+    //   //some 1D "other" histograms
 
-      h_dR_other->Fill(dR_other, weight);
-      h_m_2jets_other->Fill(m_2jets_other, weight); 
-      h_pt_2jets_other->Fill(pt_2jets_other, weight);
+    //   h_dR_other->Fill(dR_other, weight);
+    //   h_m_2jets_other->Fill(m_2jets_other, weight); 
+    //   h_pt_2jets_other->Fill(pt_2jets_other, weight);
 
-      //new mass variables
-      //variable 1: DeltaM(A->bb) = m(A1) - m(A2) where A1:pair with min dR and A2:other pair
-      dM_A1_A2 = m_2jets_mindR - m_2jets_other;
+    //   //new mass variables
+    //   //variable 1: DeltaM(A->bb) = m(A1) - m(A2) where A1:pair with min dR and A2:other pair
+    //   dM_A1_A2 = m_2jets_mindR - m_2jets_other;
 
-      h_dM_A1_A2 -> Fill(dM_A1_A2, weight);
+    //   h_dM_A1_A2 -> Fill(dM_A1_A2, weight);
 
-      //variable 2: m reduced = (m(A1,A2)-mH) - (m(A1)+m(A2)-2mA), mH = 125 GeV and mA = 20 GeV
+    //   //variable 2: m reduced = (m(A1,A2)-mH) - (m(A1)+m(A2)-2mA), mH = 125 GeV and mA = 20 GeV
 
-      float m_A1_A2_v = (jet1_min + jet2_min + jet1_other + jet2_other).M();  
-      m_reduced = (m_A1_A2_v - 125.) - (m_2jets_mindR + m_2jets_other - 2*20.);
+    //   float m_A1_A2_v = (jet1_min + jet2_min + jet1_other + jet2_other).M();  
+    //   m_reduced = (m_A1_A2_v - 125.) - (m_2jets_mindR + m_2jets_other - 2*20.);
 
-      h_m_reduced->Fill(m_reduced, weight);
+    //   h_m_reduced->Fill(m_reduced, weight);
 
       
-    }
+    // }
 
     //cos theta* calculation
     
@@ -1394,7 +1394,7 @@ void MyClass::Loop()
 
     // truth matched bb pairs
 
-    TLorentzVector jet1 = vec_jet[0]; jet2 = vec_jet[1]; 
+    TLorentzVector jet1 = vec_jet[0]; 
 
     if(signal){
       
@@ -1405,38 +1405,18 @@ void MyClass::Loop()
       if(match_jet1_bb1 || match_jet1_bb2){
 	matched_bb_pairs++;	
       }
+      
       float jet1_pt = jet1.Pt();
       if(match_jet1_bb1){
         float pt_2b_truth = (vec_bb1[0] + vec_bb1[1]).Pt();
+	h_ptjet_pt2b->Fill(jet1_pt, pt_2b_truth);	
       }
       else if(match_jet1_bb2){
 	float pt_2b_truth = (vec_bb2[0] + vec_bb2[1]).Pt();
-      }
-      h_ptjet_pt2b->Fill(jet1_pt, pt_2b_truth);
-
-      TLorentzVector best_matched_b_jet1_min;
-      float min_deltaR = 999;
-
-
-      for (size_t i = 0; i < vec_bb1.size(); i++) {
-	float deltaR_jet1_b = getDeltaR(jet1_min, vec_bb1[i]);
-	if (deltaR_jet1_b < min_deltaR) {
-	  min_deltaR = deltaR_jet1_b;
-	  best_matched_b_jet1_min = vec_bb1[i];
-	}
+	h_ptjet_pt2b->Fill(jet1_pt, pt_2b_truth);
       }
 
 
-      for (size_t i = 0; i < vec_bb2.size(); i++) {
-	float deltaR_jet1_b = getDeltaR(jet1_min, vec_bb2[i]);
-	if (deltaR_jet1_b < min_deltaR) {
-	  min_deltaR = deltaR_jet1_b;
-	  best_matched_b_jet1_min = vec_bb2[i];
-	}
-      }
-
-      float deltaR_best_matched_b = getDeltaR(jet1_min, best_matched_b_jet1_min);
-      h_best_matched_b_dR->Fill(deltaR_best_matched_b, weight);
 
     } // end if(signal)
 
@@ -1574,7 +1554,7 @@ void MyClass::Loop()
    h_best_matched_b_dR->Write();
    h_deltaR_correct_pair->Write();
 
-   h_ptjet_pt2b_bb1->Write();
+   h_ptjet_pt2b->Write();
 
     fout.Close();
 
